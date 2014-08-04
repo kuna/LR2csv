@@ -1,0 +1,113 @@
+
+#ifdef USEGDI
+	// before creating texture,
+	// first make fontfamily & path
+	// to get total size
+	FontFamily *fontFamily = new FontFamily(font->fontData->fontFace);
+	if (!fontFamily->IsAvailable()) {
+		// set default fontface (fallback)
+		delete fontFamily;
+		fontFamily = new FontFamily(L"Gulim");
+	}
+		
+	GraphicsPath path;
+	path.AddString(str, wcslen(str),
+		fontFamily,
+		FontStyle::FontStyleRegular,
+		font->fontData->fontHeight,
+		PointF(0, 0),
+		StringFormat::GenericTypographic());
+	
+	Rect rText;
+	Size rTextSize;
+	path.GetBounds(&rText);
+	rText.GetSize(&rTextSize);
+
+	// make default font to texture	
+	LPDIRECT3DTEXTURE9 pTex;
+	if( FAILED( pd3dDevice->CreateTexture( rTextSize.Width, rTextSize.Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTex, NULL ) ) )
+	{
+		// texture creating failed. stop drawing
+		return;
+	}
+
+	HDC hdc;
+	LPDIRECT3DSURFACE9 pSurface;
+
+	// draw text with effects
+	pTex->GetSurfaceLevel( 0, &pSurface );
+	pSurface->GetDC( &hdc );
+	if( hdc )
+	{
+		Graphics g(hdc);
+
+#ifdef USEPATH
+		// for anti-alias
+		g.SetTextRenderingHint(TextRenderingHint::TextRenderingHintAntiAlias);
+		g.SetSmoothingMode(SmoothingMode::SmoothingModeAntiAlias);
+
+		Color colorText, colorBorder;
+		colorText.SetFromCOLORREF(Color((BYTE)font->fontData->fontA,
+			(BYTE)font->fontData->fontR,
+			(BYTE)font->fontData->fontG,
+			(BYTE)font->fontData->fontB).GetValue());
+		colorBorder.SetFromCOLORREF(Color((BYTE)font->fontData->borderA,
+			(BYTE)font->fontData->borderR,
+			(BYTE)font->fontData->borderG,
+			(BYTE)font->fontData->borderB).GetValue());
+		Pen pen(colorBorder, font->fontData->borderWidth);
+		SolidBrush brush_solid(colorText);
+		g.DrawPath(&pen, &path);
+		g.FillPath(&brush_solid, &path);
+		g.Flush();
+
+		g.ReleaseHDC(hdc);
+#endif
+#ifdef USEDRAW
+		Color colorText, colorBorder;
+		colorText.SetFromCOLORREF(Color((BYTE)font->fontData->fontA,
+			(BYTE)font->fontData->fontR,
+			(BYTE)font->fontData->fontG,
+			(BYTE)font->fontData->fontB).GetValue());
+		colorBorder.SetFromCOLORREF(Color((BYTE)font->fontData->borderA,
+			(BYTE)font->fontData->borderR,
+			(BYTE)font->fontData->borderG,
+			(BYTE)font->fontData->borderB).GetValue());
+		SolidBrush brush_solid(colorText);
+
+		Font g_Font(fontFamily, font->fontData->fontHeight);
+		
+		StringFormat format;
+		format.SetAlignment(StringAlignmentCenter);
+
+		g.DrawString(str, -1, &g_Font, PointF(0,0), &format, &brush_solid);
+#endif
+
+		delete fontFamily;
+	} else {
+		return;
+	}
+	
+	D3DXMATRIX mat, orgmat;
+	sprite->GetTransform(&orgmat);
+
+	// make new transform
+	// out, scaling centre, scaling rotation, scaling, rotation centre, rotation, translation
+	D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(0.0f, 0.0f), 0.0,
+		&D3DXVECTOR2(1, 1), &D3DXVECTOR2(0, 0), 0, &D3DXVECTOR2(dst->left, dst->top));
+	sprite->SetTransform(&mat);
+
+	// ALPHA BLENDING
+	pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	sprite->Draw(pTex, 0, 0, 0, D3DCOLOR_XRGB(255,255,255));
+	sprite->Flush();
+	
+	// restore
+	sprite->SetTransform(&orgmat);
+	pSurface->Release();
+	pTex->Release();
+#endif
