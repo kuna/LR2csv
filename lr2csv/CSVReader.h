@@ -7,8 +7,7 @@
 class CSVReader {
 public:
 	static bool readCSVFile(TCHAR *path, CSVData *csvData);
-	static bool parseCSVData(TCHAR *data, CSVData *csvData);
-
+	static bool parseCSVData(TCHAR *data);
 private:
 	static std::vector<TCHAR*> lines;
 	static std::vector<TCHAR*> recycled;			// used when memory free after parse finished

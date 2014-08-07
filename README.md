@@ -86,6 +86,7 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
   * F1: select, F2: decide, F3: play, F4: result screen으로 확인 가능.
 - 내부적인 구현방식 다수 변경. DXTexture 별개로 빼냄.
 - Memory leak 대다수 해결.
+16. FMOD sound system 구현.
 
 ---------------------
 
@@ -93,5 +94,6 @@ TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 14. 타이머 콜백 함수 만들기 (play에서 ready랑 play의 rhythm timer 시작 부분에 사용할 것)
 15. freetype 최적화 및 완성하기.
-16. FMOD sound system 구현.
+16. CSVFile의 filtering 메서드 강화시키기
+17. avi playback 지원
 </pre>

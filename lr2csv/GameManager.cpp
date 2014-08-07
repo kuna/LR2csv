@@ -10,16 +10,89 @@
 #include "CSVFile.h"
 #include "GameSetting.h"
 
+// for using FMOD
+#pragma comment(lib, "fmod_vc.lib")
+#include <fmod.hpp>
+
 int GameManager::GameMode;
 DXGame *GameManager::dxGame;
+
+// fmod
+FMOD::System *fmod_system;
+FMOD::Sound *sounds[256];
+FMOD::Channel *channel = 0;
 
 // resources
 DXTexture images[256];
 DXFont fonts[256];
 CSVData csvData;
+CSVData csvSoundData;
 
 void GameManager::InitGame(DXGame *dxGame_) {
 	dxGame = dxGame_;
+
+	// init FMOD Soundsystem
+	FMOD::System_Create(&fmod_system);
+	fmod_system->init(32, FMOD_INIT_NORMAL, 0);
+}
+
+std::string w2s(std::wstring w) {
+	return std::string(w.begin(), w.end());
+}
+
+std::wstring getPath(std::wstring w) {
+	TCHAR absolutePath[256];
+	CSVFile::GetPathFromSettings(w.c_str(), absolutePath);
+	return absolutePath;
+}
+
+void GameManager::LoadSounds() {
+	// load sound xml file
+	if (CSVReader::readCSVFile(L"LR2files\\Sound\\lr2.lr2ss", &csvSoundData)) {
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_select)).c_str(), FMOD_DEFAULT, 0, &sounds[0]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_decide)).c_str(), FMOD_DEFAULT, 0, &sounds[1]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_exselect)).c_str(), FMOD_DEFAULT, 0, &sounds[2]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_exdecide)).c_str(), FMOD_DEFAULT, 0, &sounds[3]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_folder_open)).c_str(), FMOD_DEFAULT, 0, &sounds[4]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_folder_close)).c_str(), FMOD_DEFAULT, 0, &sounds[5]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_panel_open)).c_str(), FMOD_DEFAULT, 0, &sounds[6]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_panel_close)).c_str(), FMOD_DEFAULT, 0, &sounds[7]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_option_change)).c_str(), FMOD_DEFAULT, 0, &sounds[8]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_difficulty)).c_str(), FMOD_DEFAULT, 0, &sounds[9]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_screenshot)).c_str(), FMOD_DEFAULT, 0, &sounds[10]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_clear)).c_str(), FMOD_DEFAULT, 0, &sounds[11]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_fail)).c_str(), FMOD_DEFAULT, 0, &sounds[12]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_stop)).c_str(), FMOD_DEFAULT, 0, &sounds[13]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_mine)).c_str(), FMOD_DEFAULT, 0, &sounds[14]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_scratch)).c_str(), FMOD_DEFAULT, 0, &sounds[15]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_courseclear)).c_str(), FMOD_DEFAULT, 0, &sounds[16]);
+		fmod_system->createSound(w2s(getPath(csvSoundData.sound_coursefail)).c_str(), FMOD_DEFAULT, 0, &sounds[17]);
+
+		sounds[0]->setMode(FMOD_LOOP_NORMAL);
+	}
+}
+
+void GameManager::ReleaseSounds() {
+	for (int i=0; i<18; i++)
+		sounds[i]->release();
+	fmod_system->close();
+	fmod_system->release();
+}
+
+void GameManager::PlaySound(int num) {
+	if (sounds[num]) {
+		fmod_system->playSound(sounds[num], 0, false, &channel);
+	}
+}
+
+void GameManager::StopSound(int num) {
+	if (channel) {
+		/*if (num < 0) {
+			for (int i=0; i<18; i++)
+				channel->stop();
+		}*/
+		channel->stop();
+	}
 }
 
 bool GameManager::setGameMode(int mode) {
@@ -59,12 +132,20 @@ bool GameManager::setGameMode(int mode) {
 			if (!CSVReader::readCSVFile(GameSetting::scene.select, &csvData)) {
 				return false;
 			}
+
+			// play sound
+			StopSound();
+			PlaySound(SOUND::SELECT);
 			break;
 		case GAMEMODE::DECIDE:
 			// load CSV
 			if (!CSVReader::readCSVFile(GameSetting::scene.decide, &csvData)) {
 				return false;
 			}
+
+			// play sound
+			StopSound();
+			PlaySound(SOUND::DECIDE);
 			break;
 		case GAMEMODE::PLAY:
 			// set option
@@ -97,6 +178,9 @@ bool GameManager::setGameMode(int mode) {
 			if (!CSVReader::readCSVFile(GameSetting::scene.play, &csvData)) {
 				return false;
 			}
+
+			// play sound
+			//PlaySound(SOUND::);
 			break;
 		case GAMEMODE::RESULT:
 			// clear or fail?
@@ -107,6 +191,10 @@ bool GameManager::setGameMode(int mode) {
 			if (!CSVReader::readCSVFile(GameSetting::scene.result, &csvData)) {
 				return false;
 			}
+
+			// play sound
+			StopSound();
+			PlaySound(SOUND::CLEAR);
 			break;
 	}
 

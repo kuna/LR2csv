@@ -70,9 +70,10 @@ bool CSVReader::readCSVFile(TCHAR *path, CSVData *csvData) {
 
 	wcscpy(csvData->path, absolutePath);
 
-	// split lines
+	// split lines & initalize
 	conditionDepth = 0;
-	if (!parseCSVData(fileData, csvData)) {
+	currentCSV = csvData;
+	if (!parseCSVData(fileData)) {
 		free(fileData);
 		return false;
 	}
@@ -94,9 +95,7 @@ bool CSVReader::readCSVFile(TCHAR *path, CSVData *csvData) {
 	return true;
 }
 
-bool CSVReader::parseCSVData(TCHAR *data, CSVData *csvData) {
-	// initalize
-	currentCSV = csvData;
+bool CSVReader::parseCSVData(TCHAR *data) {
 	
 	// line parse
 	TCHAR *n = NULL;
@@ -404,9 +403,41 @@ void CSVReader::processCSVLine(TCHAR *data) {
 
 			// split lines
 			recycled.push_back(fileData);
-			if (!parseCSVData(fileData, currentCSV)) {
+			if (!parseCSVData(fileData)) {
 				return;
 			}
+		} else if (wcscmp(args[0], L"#SELECT") == 0) {
+			currentCSV->sound_select = args[1];
+		} else if (wcscmp(args[0], L"#DECIDE") == 0) {
+			currentCSV->sound_decide = args[1];
+		} else if (wcscmp(args[0], L"#EXSELECT") == 0) {
+			currentCSV->sound_exselect = args[1];
+		} else if (wcscmp(args[0], L"#EXDECIDE") == 0) {
+			currentCSV->sound_exdecide = args[1];
+		} else if (wcscmp(args[0], L"#FOLDER_OPEN") == 0) {
+			currentCSV->sound_folder_open = args[1];
+		} else if (wcscmp(args[0], L"#FOLDER_CLOSE") == 0) {
+			currentCSV->sound_folder_close = args[1];
+		} else if (wcscmp(args[0], L"#PANEL_OPEN") == 0) {
+			currentCSV->sound_panel_open = args[1];
+		} else if (wcscmp(args[0], L"#PANEL_CLOSE") == 0) {
+			currentCSV->sound_panel_close = args[1];
+		} else if (wcscmp(args[0], L"#SCREENSHOT") == 0) {
+			currentCSV->sound_screenshot = args[1];
+		} else if (wcscmp(args[0], L"#CLEAR") == 0) {
+			currentCSV->sound_clear = args[1];
+		} else if (wcscmp(args[0], L"#FAIL") == 0) {
+			currentCSV->sound_fail = args[1];
+		} else if (wcscmp(args[0], L"#STOP") == 0) {
+			currentCSV->sound_stop = args[1];
+		} else if (wcscmp(args[0], L"#MINE") == 0) {
+			currentCSV->sound_mine = args[1];
+		} else if (wcscmp(args[0], L"#SCRATCH") == 0) {
+			currentCSV->sound_scratch = args[1];
+		} else if (wcscmp(args[0], L"#COURSECLEAR") == 0) {
+			currentCSV->sound_courseclear = args[1];
+		} else if (wcscmp(args[0], L"#COURSEFAIL") == 0) {
+			currentCSV->sound_coursefail = args[1];
 		}
 	}
 }

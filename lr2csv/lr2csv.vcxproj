@@ -40,8 +40,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;C:\irrlicht\include;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\freetype-2.5.3\include;</IncludePath>
-    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;C:\irrlicht\lib\Win32-visualstudio;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;</LibraryPath>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;C:\irrlicht\include;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;C:\freetype-2.5.3\include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\inc;</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;C:\irrlicht\lib\Win32-visualstudio;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86;C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\lowlevel\lib;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -18,6 +18,10 @@ public:
 
 	static void LoadSkinResource(DXGame *dxGame);
 	static void ReleaseSkinResource();
+	static void LoadSounds();
+	static void ReleaseSounds();
+	static void PlaySound(int num);
+	static void StopSound(int num=-1);
 
 	static CSVData* getCSVData();
 	static DXTexture* getTexture(int num);
@@ -30,4 +34,27 @@ enum GAMEMODE {
 	DECIDE = 2,
 	PLAY = 3,
 	RESULT = 4
+};
+
+namespace SOUND {
+	enum SOUND {
+		SELECT =0,
+		DECIDE = 1,
+		EXSELECT = 2,
+		EXDECIDE = 3,
+		FOLDER_OPEN = 4,
+		FOLDER_CLOSE = 5,
+		PANEL_OPEN = 6,
+		PANEL_CLOSE = 7,
+		OPTION_CHANGE = 8,
+		DIFFICULTY = 9,
+		SCREENSHOT = 10,
+		CLEAR = 11,
+		FAIL = 12,
+		STOP = 13,
+		MINE = 14,
+		SCRATCH = 15,
+		COURSECLEAR = 16,
+		COURSEFAIL = 17
+	};
 };

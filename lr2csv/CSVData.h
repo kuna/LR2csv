@@ -36,6 +36,26 @@ public:
 	CSVElement *csvLNEnd;
 	CSVElement *csvMine;
 	CSVElement *csvLine;
+
+	// sound
+	std::wstring sound_select;
+	std::wstring sound_decide;
+	std::wstring sound_exselect;
+	std::wstring sound_exdecide;
+	std::wstring sound_folder_open;
+	std::wstring sound_folder_close;
+	std::wstring sound_panel_open;
+	std::wstring sound_panel_close;
+	std::wstring sound_option_change;
+	std::wstring sound_difficulty;
+	std::wstring sound_screenshot;
+	std::wstring sound_clear;
+	std::wstring sound_fail;
+	std::wstring sound_stop;
+	std::wstring sound_mine;
+	std::wstring sound_scratch;
+	std::wstring sound_courseclear;
+	std::wstring sound_coursefail;
 private:
 	// metadatas
 

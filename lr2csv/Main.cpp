@@ -119,7 +119,7 @@ VOID Render() {
 
 INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 {
-	// load game setting
+	// load game setting 
 	GameSetting::LoadSetting();
 
 	// create window
@@ -140,6 +140,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	CSVRenderer::SetdrawFunc(drawFunc);
 	GameManager::InitGame(&dxGame);
 	CSVOption::InitOption();
+	GameManager::LoadSounds();
 
 	GameManager::loadScene(GAMEMODE::SELECT);
 	GameManager::startScene();
@@ -161,6 +162,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	// clear program...?
 	CSVSelectList::clearData();
 	GameManager::ReleaseSkinResource();
+	GameManager::ReleaseSounds();
 	dxGame.Release();
 
 	return 0;
