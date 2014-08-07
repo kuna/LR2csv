@@ -20,6 +20,7 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 * DirectX SDK (June 2010) - dx9
 * Freetype
+* FMOD Library
 
 ### Future works
 
@@ -96,4 +97,5 @@ TODO
 15. freetype 최적화 및 완성하기.
 16. CSVFile의 filtering 메서드 강화시키기
 17. avi playback 지원
+18. irrlicht 엔진과 통합
 </pre>
