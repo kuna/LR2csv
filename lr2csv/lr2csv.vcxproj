@@ -20,6 +20,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -54,6 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>NotSet</SubSystem>
@@ -94,8 +96,12 @@
     <ClCompile Include="CSVTimer.cpp" />
     <ClCompile Include="DXFont.cpp" />
     <ClCompile Include="DXGame.cpp" />
+    <ClCompile Include="DXTexture.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="GameSetting.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Markup.cpp" />
+    <ClCompile Include="SceneCommon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVBargraph.h" />
@@ -116,8 +122,13 @@
     <ClInclude Include="CSVTimer.h" />
     <ClInclude Include="DXFont.h" />
     <ClInclude Include="DXGame.h" />
+    <ClInclude Include="DXTexture.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameResource.h" />
+    <ClInclude Include="GameSetting.h" />
+    <ClInclude Include="Markup.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneCommon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

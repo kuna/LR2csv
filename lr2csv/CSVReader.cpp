@@ -126,9 +126,10 @@ bool CSVReader::readFile(TCHAR *path, TCHAR **out) {
 	// check unicode reading
 	bool isUnicode;
 	char sig[10];
+	char sig_unicode[] = {0xFF, 0xFE};
 	fread(sig, 1, 2, fp);
 
-	if (memcmp(sig, new char[0xFF, 0xFE], 2) == 0) {
+	if (memcmp(sig, sig_unicode, 2) == 0) {
 		isUnicode = true;
 	} else {
 		fseek(fp, 0, SEEK_SET);
@@ -164,6 +165,8 @@ bool CSVReader::readFile(TCHAR *path, TCHAR **out) {
 		// check SHIFT_JIS
 		for (int i=0;i<1000;i++) {
 			if ((*out)[i] >= 44032 && (*out)[i] <= 55203) {
+				// free previous one
+				free(*out);
 				convert(_noteData, fileSize, "CP949", out);
 				break;
 			}
@@ -312,6 +315,15 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			}
 		} else if (wcsncmp(args[0], L"#DST_", 5) == 0) {
 			int mode = CSVElement::getTypeInt(args[0]+5);
+			
+			// if type is IMG/ONMOUSE/BUTTON
+			// then set index 0 (NONE)
+			if (mode == CSVReader::CSVTYPE_IMAGE ||
+				mode == CSVReader::CSVTYPE_ONMOUSE ||
+				mode == CSVReader::CSVTYPE_JUDGELINE ||
+				mode == CSVReader::CSVTYPE_SLIDER ||
+				mode == CSVReader::CSVTYPE_BUTTON)
+				wcscpy(args[1], L"0");
 
 			// if BAR_BODY_OFF / BAR_BODY_ON, then add to BAR_BODY
 			// else, then add to previous obj
@@ -333,6 +345,10 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			TCHAR *n = new TCHAR[256];
 			wcscpy(n, args[1]);
 			currentCSV->images.push_back(n);
+
+			// string had changed into wstring,
+			// so we need to remove original
+			delete n;
 		} else if (wcscmp(args[0], L"#BAR_CENTER") == 0) {
 			currentCSV->barCenter = _wtoi(args[1]);
 		} else if (wcscmp(args[0], L"#FONT") == 0) {
@@ -342,8 +358,6 @@ void CSVReader::processCSVLine(TCHAR *data) {
 
 			csvFont->fontHeight = _wtoi(args[1]);
 			csvFont->fontThickness = _wtoi(args[2]);
-			// ignore aa/edge
-			wcscpy(csvFont->fontFace, args[4]);
 
 			currentCSV->csvFont.push_back(csvFont);
 		} else if (wcscmp(args[0], L"#LR2FONT") == 0) {
@@ -351,7 +365,7 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			OutputDebugString(L"#LR2FONT detected, but it\'ll be ignored.\n");
 		} else if (wcscmp(args[0], L"#FONTEX") == 0) {
 			// only for LR2CSV option
-			// (index), (width), (border), (fontcolor)a, r, g, b, (bordercolor)a, r, g, b, (texture)
+			// (index), (fontpath), (border), (fontcolor)r, g, b, (bordercolor)r, g, b, (texture)
 			int idx = _wtoi(args[1]);
 			currentCSV->csvFont[idx]->SetData(args);
 		} else if (wcscmp(args[0], L"#ENDOFHEADER") == 0) {
@@ -376,7 +390,6 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			wcscpy(csvOption->optValue, args[3]);
 
 			// TODO: parse optValues
-
 			currentCSV->csvOptions.push_back(csvOption);
 		} else if (wcscmp(args[0], L"#INCLUDE") == 0) {
 			// convert path
@@ -437,7 +450,7 @@ bool CSVReader::convert(const char *input, int len, const char *from, TCHAR **ou
 	if (strcmp(from, "SHIFT_JIS") == 0)
 		codepage = 50220;
 	int nLen = MultiByteToWideChar(codepage, 0, input, strlen(input), NULL, NULL);
-	*output = new TCHAR[nLen];
+	*output = (TCHAR*)malloc(nLen*sizeof(TCHAR));
 	MultiByteToWideChar(codepage, 0, input, strlen(input), *output, nLen);
 #endif
 	return true;

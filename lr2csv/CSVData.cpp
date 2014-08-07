@@ -11,6 +11,7 @@ CSVData::~CSVData() {
 	csvElement.clear();
 }
 
+// Depreciated method. use CSVRenderer::drawAll and CSVRenderer::SetdrawFunc
 void CSVData::drawAll(bool (*drawFunc)(int, TCHAR*, CSVSRC*, CSVDST*)) {
 	CSVRenderer::SetdrawFunc(drawFunc);
 	for (int i=0; i<csvElement.size(); i++) {
@@ -21,16 +22,28 @@ void CSVData::drawAll(bool (*drawFunc)(int, TCHAR*, CSVSRC*, CSVDST*)) {
 void CSVData::Clear() {
 	csvBar = 0;
 
+	// clear elements
 	for (int i=0; i<csvElement.size(); i++) {
-		free(csvElement[i]);
+		delete csvElement[i];
 	}
 	csvElement.clear();
 
+	// clear option
 	for (int i=0; i<csvOptions.size(); i++) {
-		free(csvOptions[i]);
+		delete csvOptions[i];
 	}
 	csvOptions.clear();
 
-	// TODO: DSTOff/DSTOn should be cleared
+	// clear CSVFont
+	for (int i=0; i<csvFont.size(); i++) {
+		delete csvFont[i];
+	}
+	csvFont.clear();
+
+	// clear images
+	for (int i=0; i<images.size(); i++) {
+	}
+	images.clear();
+
 	csvBarTitle.clear();
 }

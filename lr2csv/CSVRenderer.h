@@ -13,6 +13,7 @@ public:
 	static void SetdrawFunc(bool (*pFunc)(int, TCHAR*, CSVSRC*, CSVDST*));
 	static void SetnotedrawFunc(void (*pFunc)());
 	
+	static void drawAll(CSVData *csvData);
 	// for BAR (SELECT)
 	static void drawBar(CSVElement *csvElement, int idx);
 	// for NUMBER

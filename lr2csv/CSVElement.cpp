@@ -146,13 +146,21 @@ CSVElement::CSVElement() {
 CSVElement::~CSVElement() {
 	// TODO: check fully delete
 	// clear dst (check)
-	std::vector<CSVDST*>::iterator i;
-	for (i = dst[dstNum].begin(); i != dst[dstNum].end(); i++) {
-		delete *i;
+	for (int dstidx=0; dstidx<100; dstidx++){
+		for (int i=0; i<dst[dstidx].size(); i++) {
+			delete dst[dstidx][i];
+		}
+		// there's bug in VS 2010
+		// and this'll be automatically removed 
+		// so we won't care ...
+		//dst[dstidx].clear();
 	}
-	dst[dstNum].clear();
 
-	// TODO: clear src
+	// clear src
+	for (int i=0; i<100; i++) {
+		if (src[i])
+			delete src[i];
+	}
 }
 
 int CSVElement::getTypeInt(TCHAR *str) {

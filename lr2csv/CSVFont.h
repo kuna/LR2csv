@@ -4,12 +4,13 @@
 
 class CSVFont {
 public:
-	TCHAR fontFace[20];
+	TCHAR fontPath[256];
 	TCHAR fontTexturePath[256];
 	int fontHeight, fontWidth;
+	int glyphHeight;
 	int fontThickness;
-	int fontA, fontR, fontG, fontB;
-	int borderA, borderR, borderG, borderB;
+	int fontR, fontG, fontB;
+	int borderR, borderG, borderB;
 	int borderWidth;
 
 public:

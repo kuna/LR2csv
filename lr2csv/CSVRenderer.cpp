@@ -28,6 +28,12 @@ void CSVRenderer::SetnotedrawFunc(void (*pFunc)()) {
 	notedrawFunc = pFunc;
 }
 
+void CSVRenderer::drawAll(CSVData *csvData) {
+	for (int i=0; i<csvData->csvElement.size(); i++) {
+		CSVRenderer::drawElement(csvData->csvElement[i]);
+	}
+}
+
 void CSVRenderer::drawBar(CSVElement *csvElement, int idx) {
 	CSVDST cdst, cdst_next;
 	CSVSRC csrc;

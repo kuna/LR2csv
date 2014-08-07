@@ -1,4 +1,4 @@
-*.lik
+*.ilk
 *.pdb
 /Debug/LR2files/
 ipch/

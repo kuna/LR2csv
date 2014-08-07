@@ -74,10 +74,11 @@ void CSVSelectList::clearData() {
 	// remove data
 	for (int i=0; i<data.size(); i++) {
 		for (int j=0; j<data[i]->songs.size(); j++) {
-			free(data[i]->songs[j]);
+			delete data[i]->songs[j];
 		}
-		free(data[i]);
+		delete data[i];
 	}
+	data.clear();
 }
 
 void CSVSelectList::makeSelectArray(int key, CSVSelectDataDifficulty difficulty) {

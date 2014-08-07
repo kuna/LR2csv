@@ -16,7 +16,24 @@
 #include "CSVButton.h"
 #include "CSVSlider.h"
 #include "GameManager.h"
+#include "GameSetting.h"
+#include "SceneCommon.h"
 
+/*#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#pragma warning(disable:4074)//initializers put in compiler reserved initialization area
+#pragma init_seg(compiler)//global objects in this file get constructed very early on
+struct CrtBreakAllocSetter {
+    CrtBreakAllocSetter() {
+		_CrtDumpMemoryLeaks();
+		_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG)|_CRTDBG_LEAK_CHECK_DF);
+		_CrtSetBreakAlloc(700);
+		_CrtMemDumpAllObjectsSince(0);
+    }
+};
+CrtBreakAllocSetter g_crtBreakAllocSetter;
+*/
 // instead using WinMain...
 //#pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
 
@@ -24,15 +41,13 @@
 HWND hWnd;
 DXGame dxGame;
 
-// skin
-DXTexture images[256];
-DXFont fonts[256];
-CSVData csvData;
+// key input
+SceneCommon sceneCommon;
 
 bool drawFunc(int imgnum, TCHAR *text, CSVSRC *src, CSVDST *dst) {
 	// check is argument font
 	if (text == 0) {
-		if (!images[imgnum].isTextureLoaded())
+		if (!GameManager::getTexture(imgnum)->isTextureLoaded())
 			return false;
 	
 		// make color, rect, rotation centre
@@ -41,39 +56,30 @@ bool drawFunc(int imgnum, TCHAR *text, CSVSRC *src, CSVDST *dst) {
 		RECT src_rect, dst_rect;
 		int wid = src->getWidth();
 		if (wid < 0)
-			wid = images[imgnum].width;
+			wid = GameManager::getTexture(imgnum)->width;
 		int hei = src->getHeight();
 		if (hei < 0)
-			hei = images[imgnum].height;
+			hei = GameManager::getTexture(imgnum)->height;
 		SetRect(&src_rect, src->getX(), src->getY(), src->getX()+wid, src->getY()+hei);
 		SetRect(&dst_rect, dst->getX(), dst->getY(), dst->getX2(), dst->getY2());
 		D3DXVECTOR2 rotateCentre = D3DXVECTOR2(dst->getCenterX(), dst->getCenterY());
 		double rotation = dst->getAngle()/360.0f*2*3.14f;
 
 		// draw!
-		dxGame.DrawTexture(&images[imgnum], &src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
+		dxGame.DrawTexture(GameManager::getTexture(imgnum), &src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
 	} else {
 		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
 			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
-		RECT src_rect, dst_rect;
-		SetRect(&src_rect, src->getX(), src->getY(), src->getX2(), src->getY2());
-		if (src->getTextAlign() == 1) {
-			SetRect(&dst_rect, dst->getX()-dst->getWidth()/2, dst->getY(),
-				dst->getX()+dst->getWidth()/2, dst->getY2());
-		} else if (src->getTextAlign() == 2) {
-			SetRect(&dst_rect, dst->getX()-dst->getWidth(), dst->getY(),
-				dst->getX(), dst->getY2());
-		} else if (src->getTextAlign() == 0) {
-			SetRect(&dst_rect, dst->getX(), dst->getY(),
-				dst->getX2(), dst->getY2());
-		}
 
-		// TODO: src_rect is useless ... only for align
-		dxGame.DrawString(&fonts[ src->getFontNum() ], text, &dst_rect, rgba, src->getTextAlign());
+		// src is only for align
+		//dxGame.DrawString(&fonts[ src->getFontNum() ], text, 
+		//	dst->getX(), dst->getY(), dst->getWidth(), dst->getHeight(),
+		//	src->getTextAlign(), rgba);
 	}
 }
 
 void notedrawFunc() {
+	/*
 	CSVRenderer::drawLine(csvData.csvLine, 80);
 	CSVRenderer::drawNote(csvData.csvNote, 0, 100);
 	CSVRenderer::drawNote(csvData.csvNote, 2, 100);
@@ -81,86 +87,7 @@ void notedrawFunc() {
 	CSVRenderer::drawNote(csvData.csvNote, 4, 100);
 	CSVRenderer::drawLNNote(csvData.csvNote, csvData.csvLNStart,
 		csvData.csvLNBody, csvData.csvLNEnd, 5, 60, 120);
-}
-
-VOID InitCSV() {
-	// clear data
-	csvData.Clear();
-
-	// MUST CALL BEFORE FIRST CSV LOAD
-	CSVOption::InitOption();
-	//CSVOption::setOption(906, 0);	// select Layout 1
-	//CSVOption::setOption(905, 1);	// select Layout 2
-	CSVOption::setOption(CSVOptionConst::PANEL_NOTSTART, 1);	// DEFAULT
-	//CSVOption::setOption(965, 1);	// for tricoro skin
-	CSVOption::setOption(CSVOptionConst::PLAYER1_NORMAL_GUAGE, 1);
-	CSVOption::setOption(CSVOptionConst::PLAYER1_HARD_GUAGE, 0);
-	
-	// for BG
-	CSVOption::setOption(CSVOptionConst::EXTRAMODE_OFF, 1);
-	CSVOption::setOption(CSVOptionConst::EXTRAMODE_ON, 0);
-	
-	// IR
-	CSVOption::setOption(CSVOptionConst::IR_RANK_LOADCOMPLETE, 1);
-	//CSVOption::setOption(CSVOptionConst::IR_DISCONNECTED, 1);
-
-	//CSVOption::setOption(999, 1);	// that shouldn't be drawn - for debug
-	
-	// play
-	CSVOption::setOption(912, 1);	// guage number ...??
-
-	// TODO: load csv, image & print image & character to background.
-	TCHAR csvPath[256];
-	//wcscpy(csvPath, L"LR2Files\\Theme\\REMI-S\\Play\\7key_Left.csv");
-	//wcscpy(csvPath, L"LR2Files\\Theme\\LR2\\Select\\select.csv");
-	//wcscpy(csvPath, L"LR2Files\\Theme\\REMI-S\\Play\\7key.lr2skin");
-	//wcscpy(csvPath, L"LR2Files\\Theme\\LR2\\Select\\select.lr2skin");
-	wcscpy(csvPath, L"LR2Files\\Theme\\20th tricoro for HD\\Select\\select.lr2skin");
-	//wcscpy(csvPath, L"LR2Files\\Theme\\20th tricoro for HD\\play\\play_7.lr2skin");
-	
-	if (!CSVReader::readCSVFile(csvPath, &csvData)) {
-		MSGBOX_ERROR(hWnd, L"Failed to load csv file!");
-	}
-
-	for (int i=0; i<csvData.images.size(); i++) {
-		// TODO: *.* name should be preprocessed
-		TCHAR absolutePath[256];
-		if (CSVFile::GetPathFromSettings(csvData.images[i].c_str(), absolutePath)) {
-			if (!images[i].LoadTexture(absolutePath, dxGame.GetD3D9Device())) {
-				//MSGBOX_ERROR(hWnd, L"failed to load some texture");
-				OutputDebugString(L"Failed to load some texture - ");
-				OutputDebugString(absolutePath);
-				OutputDebugString(L"\n");
-			}
-		}
-	}
-
-	// init fonts
-	for (int i=0; i<csvData.csvFont.size(); i++) {
-		dxGame.InitalizeFont(&fonts[i], csvData.csvFont[i]);
-		fonts[i].InitDXFont();
-	}
-
-	// test
-	//fonts[0].drawChar(0, L',');
-	//fonts[0].drawChar(0, L'A');
-
-	/*// TODO testfont...
-	wcscpy(csvFont[0].fontFace, L"Malgun Gothic");
-	csvFont[0].fontHeight = 20;
-	dxGame.InitalizeFont(&csvFont[0]);*/
-
-	// game just begun!
-	GameManager::startGame();
-
-	// select scene you want
-	GameManager::setPlayMode();
-	GameManager::setSelectMode();
-	//CSVRenderer::SetnotedrawFunc(notedrawFunc);
-	CSVRenderer::SetnotedrawFunc(0);
-
-	// shutter test
-	CSVSlider::setSliderValue(CSVSliderConst::SHUTTER_1P, 0.3);
+		*/
 }
 
 VOID Render() {
@@ -172,17 +99,11 @@ VOID Render() {
 	dxGame.BeginScene();
 
 	// http://irrlicht.sourceforge.net/docu/example006.html
-	// test
+	// draw sprites
 	dxGame.BeginSprite();
-	csvData.drawAll(drawFunc);
+	CSVRenderer::drawAll(GameManager::getCSVData());
 
-	// test: FONT draw
-//	dxGame.sprite->Draw(fonts[0].getFontTexture(dxGame.GetD3D9Device(), L'T')->texture,
-//		0, 0, 0, 0xFFFFFFFF);
-
-	RECT r;
-	SetRect(&r, 50, 50, 200, 200);
-	dxGame.DrawString(&fonts[0], L"한글 ヒラギ 다 됩니다!!!", &r, D3DCOLOR_XRGB(255, 255, 255), 1);
+	//dxGame.DrawString(&fonts[0], L"한글 ヒラギ 다 됩니다!!!", &r, D3DCOLOR_XRGB(255, 255, 255), 1);
 	
 	dxGame.EndSprite();
 
@@ -192,100 +113,18 @@ VOID Render() {
                 core::rect<s32>(10,30,300,50),
                 video::SColor(255,255,255,255));*/
 
-
 	dxGame.EndScene();
 }
 
-// TODO: include it to DXGame
-LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
-{
-    switch( msg )
-    {
-        case WM_DESTROY:
-            PostQuitMessage( 0 );
-            return 0;
 
-        case WM_PAINT:
-            //ValidateRect( hWnd, NULL );
-            return 0;
-		case WM_KEYDOWN:
-			if (wParam == VK_F5) {
-				// refresh
-				InitCSV();
-			}
-
-			if (wParam == 'Z') {
-				// timer
-				CSVTimer::deActiviateTimer(CSVTimerConst::KEYOFF_TIMER);
-				CSVTimer::setTime(CSVTimerConst::KEYDOWN_TIMER);
-			} else if (wParam == VK_UP) {
-				CSVSelectList::MoveUp();
-			} else if (wParam == VK_DOWN) {
-				CSVSelectList::MoveDown();
-			}
-			return 0;
-		case WM_KEYUP:
-			if (wParam == 'Z') {
-				// key input test
-				CSVTimer::deActiviateTimer(CSVTimerConst::KEYDOWN_TIMER);
-				CSVTimer::setTime(CSVTimerConst::KEYOFF_TIMER);
-				CSVTimer::setTime(CSVTimerConst::BOMB_TIMER);
-			}
-			if (wParam == 'Q') {
-				// combo test
-				CSVTimer::setTime(CSVTimerConst::JUDGE_1P);
-			}
-			if (wParam == 'W') {
-				// fullcombo test
-				CSVTimer::setTime(CSVTimerConst::FULLCOMBO_1P);
-			}
-			if (wParam == 'R') {
-				// rhythm timer test
-				CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
-			}
-			return 0;
-		case WM_MOUSEWHEEL:
-			// menu move or shutter(sudden+) move
-			return 0;
-		case WM_LBUTTONDOWN:
-			// click event
-			// get button of the position and call event
-			{
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-				CSVButton::Click(x, y);
-				CSVSlider::mouseDown(x, y);
-				return 0;
-			}
-		case WM_LBUTTONUP:
-			CSVSlider::mouseUp();
-			return 0;
-		case WM_RBUTTONDOWN:
-			// cancel event
-			// like shutter close, parent folder, cancel song.
-			return 0;
-		case WM_MOUSEMOVE:
-			// move cursor
-			{
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-				CSVRenderer::SetCurPos(x, y);
-				if (CSVSlider::mouseMove(x, y) == CSVSliderConst::SELECT_SLIDER) {
-					CSVSelectList::checkSlider();
-				}
-				return 0;
-			}
-    }
-
-    return DefWindowProc( hWnd, msg, wParam, lParam );
-}
-
-#define SCREENWIDTH 1280
-#define SCREENHEIGHT 720
 INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 {
+	// load game setting
+	GameSetting::LoadSetting();
+
 	// create window
-	hWnd = dxGame.MakeWindow(MsgProc, L"LR2csv Alpha 140728", SCREENWIDTH, SCREENHEIGHT);
+	hWnd = dxGame.MakeWindow(L"LR2csv Alpha 140728", 
+		GameSetting::screen.width, GameSetting::screen.height);
 
 	// init device
 	if (!dxGame.Initalize(hWnd)) {
@@ -298,9 +137,18 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
     UpdateWindow( hWnd );
 
 	// init
-	InitCSV();
+	CSVRenderer::SetdrawFunc(drawFunc);
+	GameManager::InitGame(&dxGame);
+	CSVOption::InitOption();
+
+	GameManager::loadScene(GAMEMODE::SELECT);
+	GameManager::startScene();
+
+	// set key input
+	dxGame.currentScene = (Scene*)&sceneCommon;
 
     // Enter the message loop
+	// TODO: include it in DXGame ...?
     MSG msg;
     while( GetMessage( &msg, NULL, 0, 0 ) )
     {
@@ -311,6 +159,8 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
     }
 
 	// clear program...?
+	CSVSelectList::clearData();
+	GameManager::ReleaseSkinResource();
 	dxGame.Release();
 
 	return 0;

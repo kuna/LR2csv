@@ -76,7 +76,22 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140805?
 12. 슬라이더 구현.
+
+---------------------
+
+140807
+- 옵션을 외부로 빼내어서 컴파일 하지 않고도 사용 가능 (settings.xml)
+  * F1: select, F2: decide, F3: play, F4: result screen으로 확인 가능.
+- 내부적인 구현방식 다수 변경. DXTexture 별개로 빼냄.
+- Memory leak 대다수 해결.
+
+---------------------
+
+TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 14. 타이머 콜백 함수 만들기 (play에서 ready랑 play의 rhythm timer 시작 부분에 사용할 것)
+15. freetype 최적화 및 완성하기.
+16. FMOD sound system 구현.
 </pre>

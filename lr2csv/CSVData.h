@@ -19,7 +19,7 @@ public:
 	// TODO: refactoring it to CSVRenderer...?
 	// bar drawing part
 	CSVElement* csvBarLevel;		// level
-	CSVElement* csvFlash;				// flash
+	CSVElement* csvFlash;			// flash
 	std::vector<CSVElement*> csvBarTitle;
 
 	// customoption part

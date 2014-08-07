@@ -1,17 +1,50 @@
 ﻿#include <Windows.h>
 #include "DXGame.h"
 
-// for GDI+ (font processing)
-#include <GdiPlus.h>
-#pragma comment(lib, "gdiplus")
-using namespace Gdiplus;
-
-#define CLASSNAME L"LR2CSV"
-
 // for GDIPLUS
 ULONG_PTR m_gdiplusToken;
+DXGame *dxGame;		// warning: static method?
 
-HWND DXGame::MakeWindow(LRESULT (WINAPI *MsgProc)( HWND, UINT, WPARAM, LPARAM ), TCHAR *wndName, int width, int height) {
+LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
+{
+    switch( msg )
+    {
+        case WM_DESTROY:
+            PostQuitMessage( 0 );
+            return 0;
+        case WM_PAINT:
+            //ValidateRect( hWnd, NULL );
+            //return 0;
+		case WM_LBUTTONDOWN:
+			dxGame->currentScene->OnLButtonDown(LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		case WM_LBUTTONUP:
+			dxGame->currentScene->OnLButtonUp(LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		case WM_RBUTTONDOWN:
+			dxGame->currentScene->OnRButtonDown(LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		case WM_RBUTTONUP:
+			dxGame->currentScene->OnRButtonUp(LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		case WM_MOUSEMOVE:
+			dxGame->currentScene->OnMouseMove(LOWORD(lParam), HIWORD(lParam));
+			return 0;
+		case WM_MOUSEWHEEL:
+			dxGame->currentScene->OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
+			return 0;
+		case WM_KEYDOWN:
+			dxGame->currentScene->OnKeyDown(wParam);
+			return 0;
+		case WM_KEYUP:
+			dxGame->currentScene->OnKeyUp(wParam);
+			return 0;
+	}
+
+    return DefWindowProc( hWnd, msg, wParam, lParam );
+}
+
+HWND DXGame::MakeWindow(TCHAR *wndName, int width, int height) {
     WNDCLASSEX wc =
     {
         sizeof( WNDCLASSEX ), CS_CLASSDC, MsgProc, 0L, 0L,
@@ -37,6 +70,7 @@ HWND DXGame::MakeWindow(LRESULT (WINAPI *MsgProc)( HWND, UINT, WPARAM, LPARAM ),
 
 BOOL DXGame::Initalize(HWND hWnd) {
 	m_hWnd = hWnd;
+	dxGame = this;
 	HRESULT hr;
 
 	// IDirect9 Initalize
@@ -72,10 +106,6 @@ BOOL DXGame::Initalize(HWND hWnd) {
 	// refer to http://skmagic.tistory.com/entry/ID3DXSprite-Interface-LPD3DXSPRITE-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0
 	CreateSprite(&sprite);
 
-	// also initalize GDIPlus ...
-	GdiplusStartupInput gdiplusStartupInput;
-	GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
-
 	return TRUE;
 }
 
@@ -86,16 +116,6 @@ VOID DXGame::ChangeMode(BOOL fullscreen) {
 
 BOOL DXGame::CreateSprite(LPD3DXSPRITE *sprite) {
 	D3DXCreateSprite(pd3dDevice, sprite);
-	return TRUE;
-}
-
-BOOL DXGame::InitalizeFont(DXFont *font, CSVFont *csvFont) {
-	font->fontData = csvFont;
-	if (FAILED(CreateFont(&font->font, csvFont->fontFace, csvFont->fontHeight, csvFont->fontWidth))) {
-		// create with default font face
-		return CreateFont(&font->font, L"Malgun Gothic", csvFont->fontHeight, csvFont->fontWidth);
-	}
-
 	return TRUE;
 }
 
@@ -143,9 +163,6 @@ BOOL DXGame::LoadTexture(const TCHAR *path, LPDIRECT3DTEXTURE9 *pTexture) {
 }
 
 BOOL DXGame::Release() {
-	// GDI+
-	GdiplusShutdown(m_gdiplusToken);
-
 	pd3dDevice->Release();
 	pd3d9->Release();
 
@@ -260,131 +277,68 @@ VOID DXGame::DrawTexture(DXTexture *texture, RECT *srcRect, RECT *dstRect, D3DXC
 	sprite->SetTransform(&orgmat);
 }
 
-#define USEDRAW
-#define USEFREETYPE
-VOID DXGame::DrawString(DXFont *font, TCHAR *str, RECT *dst, D3DCOLOR clr, int align) {
-	// TODO: textured-masked font
-	// TODO: border
-	// TODO: shadow
-	// TODO: stretching/resize (matrix) - comparing size with original one
+VOID DXGame::DrawString(DXFont *font, TCHAR *str, int x, int y, int width, int size, int align, D3DCOLOR clr) {
+	// TODO: align/stretching/resize (matrix) - comparing size with original one
+	//
 
-#ifdef USEDX
-	D3DXMATRIX mat, orgmat;
-	sprite->GetTransform(&orgmat);
-	
-	RECT rText;
-	font->font->DrawTextW(sprite, str, -1, &rText, DT_CALCRECT, clr);
-
-	// make new transform
-	// out, scaling centre, scaling rotation, scaling, rotation centre, rotation, translation
-	double scale = (double)(rText.bottom - rText.top) / (dst->bottom - dst->top);
-	D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(dst->right, dst->top), 0.0,
-		&D3DXVECTOR2(1.0f, 1.0f), &D3DXVECTOR2(0, 0), 0, &D3DXVECTOR2(0, 0));
-	sprite->SetTransform(&mat);
-
-	int align_val = DT_LEFT;
-	if (align == 1)
-		align_val = DT_CENTER;
-	else if (align == 2)
-		align_val = DT_RIGHT;
-	font->font->DrawTextW(sprite, str, -1, dst, align, clr);
-	sprite->Flush();
-	
-	sprite->SetTransform(&orgmat);
-#endif
-
-#ifdef USEFREETYPE
-	int width = dst->right;
-	int size = dst->bottom;
-
-	RECT rText;
-	font->drawString(0, str, width, size, align, &rText);
-
-	// get texture (if not exists, then make new one)
+	// TODO: string under 100
+	int chrWidth[100];
+	int totalWidth = 0;
 	for (int i=0; i<wcslen(str); i++) {
-
-	}
-	
-	// create texture
-	LPDIRECT3DTEXTURE9 pTex;
-	if( FAILED( pd3dDevice->CreateTexture( rText.right, rText.bottom, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTex, NULL ) ) )
-	{
-		// texture creating failed. stop drawing
-		return;
+		if (!font->getFontTexture(str[i], &chrWidth[i]))
+			chrWidth[i] = 0;
+		totalWidth += chrWidth[i];
 	}
 
-	HDC hdc;
-	LPDIRECT3DSURFACE9 pSurface;
+	double multiply = (double)size / font->fontData->fontHeight;	// real multiplication (height)
+	double widthMul = (double)width / totalWidth;
+	if (widthMul > 1)
+		widthMul = 1;
+	double totalWidthMul = widthMul * multiply;	// real multiplication (width)
+	int currentWidth = width;		// real drawing width
+	if (totalWidth < width)
+		currentWidth = totalWidth;
 
-	// draw text
-	pTex->GetSurfaceLevel( 0, &pSurface );
-	pSurface->GetDC( &hdc );
-	if( hdc )
-	{
-		font->drawString(hdc, str, width, size, align, &rText);
+	// reset position for align
+	int sx = x;
+	if (align == 0) {
+	} else if (align == 1) {
+		sx -= totalWidth/2;
+	} else if (align == 2) {
+		sx -= totalWidth;
 	}
-	
-	// make new transform
-	D3DXMATRIX mat, orgmat;
-	sprite->GetTransform(&orgmat);
-
-	// out, scaling centre, scaling rotation, scaling, rotation centre, rotation, translation
-	D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(0.0f, 0.0f), 0.0,
-		&D3DXVECTOR2(1, 1), &D3DXVECTOR2(0, 0), 0, &D3DXVECTOR2(dst->left, dst->top));
-	sprite->SetTransform(&mat);
 
 	// ALPHA BLENDING
 	pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	
+	D3DXMATRIX mat, orgmat;
+	sprite->GetTransform(&orgmat);
 
-	sprite->Draw(pTex, 0, 0, 0, D3DCOLOR_XRGB(255,255,255));
-	sprite->Flush();
+	for (int i=0; i<wcslen(str); i++) {
+		DXFontTexture *dxfnt;
+		dxfnt = font->getFontTexture(str[i]);
+		if (dxfnt) {
+			D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(x, y), 0.0,
+				&D3DXVECTOR2(totalWidthMul, multiply), &D3DXVECTOR2(0, 0), 0,
+				&D3DXVECTOR2(sx*totalWidthMul, y*multiply));
+			//D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(0, 0), 0.0,
+			//	&D3DXVECTOR2(totalWidthMul, 0.5f), &D3DXVECTOR2(0, 0), 0, &D3DXVECTOR2(0, 0));
+			sprite->SetTransform(&mat);
+			sprite->Draw(dxfnt->texture, 0, 0, 0, clr);
+		}
+
+		sx += chrWidth[i];
+	}
+	//sprite->Flush();
 	
 	// restore
 	sprite->SetTransform(&orgmat);
-	pSurface->Release();
-	pTex->Release();
-#endif
 }
 
 VOID DXGame::EndSprite() {
 	sprite->End();
 }
 
-
-//
-BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
-{
-	// check if texture is already exists ...
-	if (pTexture != 0)
-		pTexture->Release();
-
-	D3DXIMAGE_INFO pImgInf;
-	if (FAILED(D3DXCreateTextureFromFileEx(pd3dDevice, path,
-		D3DX_DEFAULT, D3DX_DEFAULT, 
-		1,	// Mip level
-		0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, 0x00000001, 0x00000001,
-		0x00000000,	//
-		&pImgInf,
-		NULL,
-		&pTexture))) return FALSE;
-
-	width = txtRect.right = pImgInf.Width;
-	height = txtRect.bottom = pImgInf.Height;
-
-	return TRUE;
-}
-
-RECT* DXTexture::GetRect() {
-	return &txtRect;
-}
-
-LPDIRECT3DTEXTURE9 DXTexture::GetTexture() {
-	return pTexture;
-}
-
-BOOL DXTexture::isTextureLoaded() {
-	return (pTexture != 0);
-}

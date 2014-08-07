@@ -88,9 +88,8 @@ enum CSVOptionConst {
 	RECORD_REC = 83,
 	RECORD_REPLAY = 84,
 
-	// TODO: what is LIZA - result? ?
 	RESULT_CLEAR = 90,
-	RESULT_MISS = 91,
+	RESULT_FAIL = 91,
 
 	/* for song selecting */
 	SELECT_NOTPLAYED = 100,
