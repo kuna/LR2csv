@@ -72,9 +72,12 @@ bool drawFunc(int imgnum, TCHAR *text, CSVSRC *src, CSVDST *dst) {
 			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
 
 		// src is only for align
-		//dxGame.DrawString(&fonts[ src->getFontNum() ], text, 
-		//	dst->getX(), dst->getY(), dst->getWidth(), dst->getHeight(),
-		//	src->getTextAlign(), rgba);
+		DXFont *font = GameManager::getFont(src->getFontNum());
+		if (font && font->fontData) {
+			dxGame.DrawString(font, text, 
+				dst->getX(), dst->getY()-dst->getHeight()/2, dst->getWidth(), dst->getHeight(),
+				src->getTextAlign(), rgba);
+		}
 	}
 }
 

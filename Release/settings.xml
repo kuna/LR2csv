@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<scene name="select">
+		<file>LR2Files\Theme\LR2\Select\select.lr2skin</file>
+	</scene>
+	<scene name="decide">
+		<file>LR2Files\Theme\LR2\Decide\decide.lr2skin</file>
+	</scene>
+	<scene name="play">
+		<file>LR2Files\Theme\20th tricoro for HD\play\play_7.lr2skin</file>
+	</scene>
+	<scene name="result">
+		<file>LR2Files\Theme\20th tricoro for HD\Result\result.lr2skin</file>
+	</scene>
+	<scene name="keysetting">
+		<file></file>
+	</scene>
+	<sound>
+		<file></file>
+	</sound>
+
+	<!-- common settings (not csv custom) -->
+	<setting name="screen">
+		<width>1280</width>
+		<height>720</height>
+	</setting>
+	<setting name="key7">
+		<key name="1">A</key>
+		<key name="2">A</key>
+		<key name="3">A</key>
+		<key name="4">A</key>
+		<key name="5">A</key>
+		<key name="6">A</key>
+		<key name="7">A</key>
+		<key name="8">A</key>
+	</setting>
+	<setting name="key14">
+		<key name="1">A</key>
+		<key name="2">A</key>
+		<key name="3">A</key>
+		<key name="4">A</key>
+		<key name="5">A</key>
+		<key name="6">A</key>
+		<key name="7">A</key>
+		<key name="8">A</key>
+	</setting>
+	<setting name="play">
+		<speed>100</speed>
+		<shutter>0</shutter>
+	</setting>
+</settings>

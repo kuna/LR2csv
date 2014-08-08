@@ -303,8 +303,12 @@ bool CSVElement::getDST(CSVDST *c) {
 		return false;
 
 	// check condition
-	if (!dst[dstNum][0]->checkOP())
-		return false;		// DONT draw if OP dont matches
+	// skip if CSVTYPE_BAR_TITLE
+	if (dst[dstNum][0]->type == CSVReader::CSVTYPE_BAR_TITLE) {
+	} else {
+		if (!dst[dstNum][0]->checkOP())
+			return false;		// DONT draw if OP dont matches
+	}
 
 	int loop = dst[dstNum][0]->getLoop();
 	int timer = dst[dstNum][0]->getTimer();

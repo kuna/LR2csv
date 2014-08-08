@@ -324,15 +324,16 @@ VOID DXGame::DrawString(DXFont *font, TCHAR *str, int x, int y, int width, int s
 			D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(x, y), 0.0,
 				&D3DXVECTOR2(totalWidthMul, multiply), &D3DXVECTOR2(0, 0), 0,
 				&D3DXVECTOR2(sx*totalWidthMul, y*multiply));
-			//D3DXMatrixTransformation2D(&mat, &D3DXVECTOR2(0, 0), 0.0,
-			//	&D3DXVECTOR2(totalWidthMul, 0.5f), &D3DXVECTOR2(0, 0), 0, &D3DXVECTOR2(0, 0));
 			sprite->SetTransform(&mat);
-			sprite->Draw(dxfnt->texture, 0, 0, 0, clr);
+
+			RECT r;
+			SetRect(&r, dxfnt->x, dxfnt->y, dxfnt->width+dxfnt->x, dxfnt->height+dxfnt->y);
+			sprite->Draw(font->glyphTexture, &r, 0, 0, clr);
 		}
 
 		sx += chrWidth[i];
 	}
-	//sprite->Flush();
+	sprite->Flush();
 	
 	// restore
 	sprite->SetTransform(&orgmat);

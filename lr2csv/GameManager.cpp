@@ -252,10 +252,15 @@ void GameManager::LoadSkinResource(DXGame *dxGame) {
 	// init fonts
 	for (int i=0; i<csvData.csvFont.size(); i++) {
 		fonts[i].fontData = csvData.csvFont[i];
+		CSVFile::GetAbsolutePath(fonts[i].fontData->fontPath, fonts[i].fontData->fontPath);
+		CSVFile::GetAbsolutePath(fonts[i].fontData->fontTexturePath, fonts[i].fontData->fontTexturePath);
 		if (!fonts[i].InitDXFont(dxGame->GetD3D9Device())) {
 			OutputDebugString(L"Failed to load some fonts. use fallback.\n");
 			wcscpy(fonts[i].fontData->fontPath, L"C:\\Windows\\Fonts\\Gulim.ttc");
-			//fonts[i].InitDXFont(dxGame->GetD3D9Device());
+			fonts[i].fontData->borderR = fonts[i].fontData->borderG = fonts[i].fontData->borderB = 0;
+			fonts[i].fontData->borderWidth = 1;
+			fonts[i].fontData->fontR = fonts[i].fontData->fontG = fonts[i].fontData->fontB = 255;
+			fonts[i].InitDXFont(dxGame->GetD3D9Device());
 		}
 	}
 }
