@@ -95,6 +95,11 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140809
+- list module updated - now sample works with folder in/out
+
+---------------------
+
 TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 14. 타이머 콜백 함수 만들기 (play에서 ready랑 play의 rhythm timer 시작 부분에 사용할 것)

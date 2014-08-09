@@ -3,6 +3,9 @@
 
 	
 BOOL DXFont::InitDXFont(IDirect3DDevice9* device) {
+	// if inited, then release first
+	Release();
+
 	// set device
 	this->device = device;
 
@@ -80,9 +83,17 @@ BOOL DXFont::getAvailableGlyphSlot(DXFontTexture *data) {
 
 BOOL DXFont::Release() {
 	if (ftLib) {
+		if (ftStroker) {
+			FT_Stroker_Done(ftStroker);
+			ftStroker = 0;
+		}
+		FT_Done_Face(ftFace);
 		FT_Done_FreeType(ftLib);
 	
-		glyphTexture->Release();
+		if (glyphTexture) {
+			glyphTexture->Release();
+			glyphTexture = 0;
+		}
 
 		// TODO is releasing routing OKAY?
 		std::map<int, DXFontTexture*>::iterator it;

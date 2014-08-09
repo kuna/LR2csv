@@ -8,10 +8,11 @@
 #include "CSVOption.h"
 #include "CSVButton.h"
 #include "CSVSlider.h"
+#include "CSVText.h"
 
 int CSVRenderer::cursorX;
 int CSVRenderer::cursorY;
-bool (*CSVRenderer::drawFunc)(int, TCHAR*, CSVSRC*, CSVDST*);
+bool (*CSVRenderer::drawFunc)(int, const TCHAR*, CSVSRC*, CSVDST*);
 void (*CSVRenderer::notedrawFunc)();
 
 
@@ -20,7 +21,7 @@ void CSVRenderer::SetCurPos(int x, int y) {
 	cursorY = y;
 }
 
-void CSVRenderer::SetdrawFunc(bool (*pFunc)(int, TCHAR*, CSVSRC*, CSVDST*)) {
+void CSVRenderer::SetdrawFunc(bool (*pFunc)(int, const TCHAR*, CSVSRC*, CSVDST*)) {
 	drawFunc = pFunc;
 }
 
@@ -39,7 +40,9 @@ void CSVRenderer::drawBar(CSVElement *csvElement, int idx) {
 	CSVSRC csrc;
 
 	// get Object
-	CSVSelectSong *current = CSVSelectList::getSongData(idx - csvElement->parent->barCenter);
+	CSVSelectData *current = CSVSelectList::getSongData(idx - csvElement->parent->barCenter);
+	if (!current)
+		return;
 
 	// get DSTs
 	if (!(csvElement->getDSTBar(&cdst, idx) && (csvElement->getDSTBar(&cdst_next, idx+1)))) {
@@ -54,22 +57,25 @@ void CSVRenderer::drawBar(CSVElement *csvElement, int idx) {
 		+ cdst_next.getY() * a );
 
 	// search BAR_BODY for SRC
-	csvElement->srcNum = current->parent->index;
+	csvElement->srcNum = current->type;
 	csvElement->getSRC(&csrc);
 
 	// draw bar
 	drawFunc(csvElement->src[csvElement->srcNum]->getImgNum(), 0, &csrc, &cdst);
 
 	// draw BAR_FLASH
-	// - this will be implemented in drawElement
+	// - this implemented in drawElement
 	
 	// draw BAR_LEVEL
-	CSVElement *cele_level = csvElement->parent->csvBarLevel;
-	if (cele_level) {
-		cele_level->srcNum = cele_level->dstNum = current->difficulty+1;	// 0 means NONE
-		cele_level->dstOffsetX = cdst.getX();
-		cele_level->dstOffsetY = cdst.getY();
-		drawNumber(cele_level, current->level);
+	// only draws when type == SONG
+	if (current->type == CSVSelectType::SONG) {
+		CSVElement *cele_level = csvElement->parent->csvBarLevel;
+		if (cele_level) {
+			cele_level->srcNum = cele_level->dstNum = current->songData.difficulty;	// 0 means NONE
+			cele_level->dstOffsetX = cdst.getX();
+			cele_level->dstOffsetY = cdst.getY();
+			drawNumber(cele_level, current->songData.level);
+		}
 	}
 
 	// draw BAR_LAMP
@@ -83,7 +89,7 @@ void CSVRenderer::drawBar(CSVElement *csvElement, int idx) {
 		CSVElement *cele_title = csvElement->parent->csvBarTitle[i];
 		cele_title->dstOffsetX = cdst.getX();
 		cele_title->dstOffsetY = cdst.getY();
-		drawText(cele_title, current->path);
+		drawText(cele_title, current->songData.title.c_str());
 	}
 
 	// restore everything to default
@@ -448,7 +454,7 @@ void CSVRenderer::drawImage(CSVElement *csvElement, CSVSRC *src, CSVDST *dst) {
 	drawFunc(csvElement->src[csvElement->srcNum]->getImgNum(), 0, src, dst);
 }
 
-void CSVRenderer::drawText(CSVElement *csvElement, TCHAR *text) {
+void CSVRenderer::drawText(CSVElement *csvElement, const TCHAR *text) {
 	CSVDST cdst;
 	if (csvElement->getDST(&cdst)) {
 		drawFunc(0, text, csvElement->src[csvElement->srcNum], &cdst);
@@ -456,8 +462,7 @@ void CSVRenderer::drawText(CSVElement *csvElement, TCHAR *text) {
 }
 
 void CSVRenderer::drawText(CSVElement *csvElement) {
-	// TODO... need to implement CSVText
-	drawText(csvElement, L"TEST");
+	drawText(csvElement, CSVText::GetText(csvElement->getCurrentSRC()->getTextNum()).c_str());
 }
 
 void CSVRenderer::drawNote(CSVElement *csvElement, int key, int yPos) {

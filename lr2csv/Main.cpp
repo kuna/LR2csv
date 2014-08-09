@@ -22,7 +22,7 @@
 /*#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
-#pragma warning(disable:4074)//initializers put in compiler reserved initialization area
+/*#pragma warning(disable:4074)//initializers put in compiler reserved initialization area
 #pragma init_seg(compiler)//global objects in this file get constructed very early on
 struct CrtBreakAllocSetter {
     CrtBreakAllocSetter() {
@@ -44,7 +44,7 @@ DXGame dxGame;
 // key input
 SceneCommon sceneCommon;
 
-bool drawFunc(int imgnum, TCHAR *text, CSVSRC *src, CSVDST *dst) {
+bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
 	// check is argument font
 	if (text == 0) {
 		if (!GameManager::getTexture(imgnum)->isTextureLoaded())
@@ -105,9 +105,6 @@ VOID Render() {
 	// draw sprites
 	dxGame.BeginSprite();
 	CSVRenderer::drawAll(GameManager::getCSVData());
-
-	//dxGame.DrawString(&fonts[0], L"한글 ヒラギ 다 됩니다!!!", &r, D3DCOLOR_XRGB(255, 255, 255), 1);
-	
 	dxGame.EndSprite();
 
 	/*TCHAR msg[30];
@@ -164,6 +161,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 
 	// clear program...?
 	CSVSelectList::clearData();
+	GameManager::Release();
 	GameManager::ReleaseSkinResource();
 	GameManager::ReleaseSounds();
 	dxGame.Release();

@@ -65,9 +65,6 @@ private:
 public:
 	void addcsvBarSRC(CSVElement *ele);
 
-	// index, src, dst, argb, rotation, filter, blending
-	void drawAll(bool (*drawFunc)(int, TCHAR*, CSVSRC*, CSVDST*));
-
 	void Clear();
 
 	TCHAR path[256];

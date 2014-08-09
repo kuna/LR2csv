@@ -22,6 +22,11 @@ public:
 	static void ReleaseSounds();
 	static void PlaySound(int num);
 	static void StopSound(int num=-1);
+	static void Release();
+
+	// check list
+	static void InitSelectList();
+	static void SelectList();
 
 	static CSVData* getCSVData();
 	static DXTexture* getTexture(int num);

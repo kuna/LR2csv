@@ -1,4 +1,4 @@
-#include "GameManager.h"
+﻿#include "GameManager.h"
 #include "CSVOption.h"
 #include "CSVTimer.h"
 #include "CSVConst.h"
@@ -10,12 +10,18 @@
 #include "CSVFile.h"
 #include "GameSetting.h"
 
+// uses sqlite3
+#include "sqlite3.h"
+
 // for using FMOD
 #pragma comment(lib, "fmod_vc.lib")
 #include <fmod.hpp>
 
 int GameManager::GameMode;
 DXGame *GameManager::dxGame;
+
+// sqlite
+sqlite3 *sql;
 
 // fmod
 FMOD::System *fmod_system;
@@ -28,14 +34,7 @@ DXFont fonts[256];
 CSVData csvData;
 CSVData csvSoundData;
 
-void GameManager::InitGame(DXGame *dxGame_) {
-	dxGame = dxGame_;
-
-	// init FMOD Soundsystem
-	FMOD::System_Create(&fmod_system);
-	fmod_system->init(32, FMOD_INIT_NORMAL, 0);
-}
-
+// common functions
 std::string w2s(std::wstring w) {
 	return std::string(w.begin(), w.end());
 }
@@ -44,6 +43,28 @@ std::wstring getPath(std::wstring w) {
 	TCHAR absolutePath[256];
 	CSVFile::GetPathFromSettings(w.c_str(), absolutePath);
 	return absolutePath;
+}
+
+void UTF8toTCHAR(char *src, wchar_t **target) 
+{  
+	if (!src)
+		return;
+    int nSize = MultiByteToWideChar(CP_UTF8, 0, src, -1, 0, 0);  
+	*target = (TCHAR*)malloc(nSize*sizeof(TCHAR));
+    MultiByteToWideChar(CP_UTF8, 0, src, -1, *target, nSize);
+}
+
+void GameManager::InitGame(DXGame *dxGame_) {
+	dxGame = dxGame_;
+
+	// init FMOD Soundsystem
+	FMOD::System_Create(&fmod_system);
+	fmod_system->init(32, FMOD_INIT_NORMAL, 0);
+
+	// open song db
+	if (sqlite3_open(w2s(getPath(L"song.db")).c_str(), &sql) == SQLITE_OK) {
+		InitSelectList();
+	}
 }
 
 void GameManager::LoadSounds() {
@@ -95,17 +116,108 @@ void GameManager::StopSound(int num) {
 	}
 }
 
+int callback_addselectlist(void *data, int argc, char **argv, char **azColName){
+	TCHAR *buf[10];
+	if ((int)data == 0) { // initalize
+		int type = atoi(argv[1]);
+		if (type == 6) {
+			// course
+			UTF8toTCHAR(argv[0], &buf[0]);
+			CSVSelectList::addCourseFolder(buf[0]);
+			free(buf[0]);
+		} else if (type == 2) {
+			// folder
+			UTF8toTCHAR(argv[0], &buf[0]);
+			CSVSelectList::addCustomFolder(buf[0]);
+			free(buf[0]);
+		} else if (type == 1) {
+			// folder
+			UTF8toTCHAR(argv[0], &buf[0]);
+			UTF8toTCHAR(argv[2], &buf[1]);
+			CSVSelectList::addFolder(buf[1], buf[0]);
+			free(buf[0]);
+			free(buf[1]);
+		}
+	} else if ((int)data == 1) {// load song
+		UTF8toTCHAR(argv[0], &buf[0]);	// hash
+		UTF8toTCHAR(argv[1], &buf[1]);	// title
+		UTF8toTCHAR(argv[2], &buf[2]);	// subtitle
+		UTF8toTCHAR(argv[3], &buf[3]);	// genre
+		UTF8toTCHAR(argv[4], &buf[4]);	// artist
+		UTF8toTCHAR(argv[5], &buf[5]);	// tag
+		UTF8toTCHAR(argv[6], &buf[6]);	// path
+
+		CSVSongData songdata;
+		songdata.title = buf[1];
+		songdata.subtitle = buf[2];
+		songdata.genre = buf[3];
+		songdata.artist = buf[4];
+		songdata.path = buf[6];
+		char *p;
+		songdata.folder = strtoul(argv[9], &p, 16);
+		songdata.parent = strtoul(argv[14], &p, 16);
+		songdata.level = atoi(argv[14]);
+		songdata.difficulty = (CSVSongDataDifficulty)atoi(argv[15]);
+		songdata.maxBPM = atoi(argv[16]);
+		songdata.minBPM = atoi(argv[17]);
+		songdata.key = atoi(argv[18]);
+		songdata.judge = (CSVSongDataJudge::CSVSongDataJudge)atoi(argv[19]);
+		songdata.longnote = atoi(argv[20]);
+		songdata.readme = atoi(argv[25]);
+		songdata.notecnt = atoi(argv[26]);
+		songdata.rate = rand()%100 / 100.0;			// TODO
+		CSVSelectList::addSong(songdata, rand()%4);	// TODO: clear
+		
+		free(buf[0]);
+		free(buf[1]);
+		free(buf[2]);
+		free(buf[3]);
+		free(buf[4]);
+		free(buf[5]);
+		free(buf[6]);
+	}
+
+	return 0;
+}
+
+void GameManager::InitSelectList() {
+	// read from db
+	std::string query = "SELECT title, type, path FROM folder WHERE parent is null;";
+	sqlite3_exec(sql, query.c_str(), callback_addselectlist, 0, 0);
+}
+
+void GameManager::SelectList() {
+	// get current one
+	CSVSelectData* sel = CSVSelectList::getSelectedSongData();
+	if (!sel)
+		return;
+	
+	// case
+	std::string query;
+	switch (sel->type) {
+	case CSVSelectType::FOLDER:
+		// load folder data
+		CSVSelectList::makeNewList();
+		query = "SELECT * FROM song WHERE path like \'" + w2s(sel->songData.path) + "%\'";
+		sqlite3_exec(sql, query.c_str(), callback_addselectlist, (void*)1, 0);
+		CSVSelectList::makeSelectArray();
+		CSVSelectList::Select(0);
+		break;
+	case CSVSelectType::CUSTOMFOLDER:
+		break;
+	case CSVSelectType::COURSEFOLDER:
+		break;
+	case CSVSelectType::SONG:
+		// goto decide screen ...?
+		break;
+	}
+}
+
 bool GameManager::setGameMode(int mode) {
 	GameMode = mode;
 	switch (mode) {
 		case GAMEMODE::SELECT:
 			// set option
-			CSVOption::setOption(CSVOptionConst::SELECT_BAR_FOLDER, 1);
-			CSVOption::setOption(CSVOptionConst::SELECT_BAR_PLAYABLE, 0);
-			CSVOption::setOption(CSVOptionConst::SELECT_READMETXT_EXIST, 0);
-			CSVOption::setOption(CSVOptionConst::SELECT_READMETXT_NOTEXIST, 1);
-			CSVOption::setOption(CSVOptionConst::SELECT_BPMCHANGE_EXIST, 0);
-			CSVOption::setOption(CSVOptionConst::SELECT_BPMCHANGE_NOTEXIST, 1);
 			CSVOption::setOption(CSVOptionConst::SELECT_KEY_PLAY_7KEY, 1);
 			CSVOption::setOption(CSVOptionConst::SELECT_KEY_ORIGNAL_7KEY, 1);
 	
@@ -119,13 +231,11 @@ bool GameManager::setGameMode(int mode) {
 			//CSVOption::setOption(CSVOptionConst::IR_DISCONNECTED, 1);
 			//CSVOption::setOption(999, 1);	// that shouldn't be drawn - for debug
 
-			// add some songs...
-			CSVSelectList::clearData();
-			CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test.bms");
-			CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test2.bms");
-			CSVSelectList::addData(CSVSelectDataConst::SONG, L"123\\test.bms");
+			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test.bms");
+			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test2.bms");
+			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"123\\test.bms");
 
-			CSVSelectList::makeSelectArray(7, CSVSelectDataDifficulty::ALL);
+			CSVSelectList::makeSelectArray(7, CSVSongDataDifficulty::ALL);
 			CSVSelectList::Select(0);
 			
 			// load CSV
@@ -278,6 +388,11 @@ void GameManager::ReleaseSkinResource() {
 
 	// clear csv data
 	csvData.Clear();
+}
+
+void GameManager::Release() {
+	// cut off db
+	sqlite3_close(sql);
 }
 
 CSVData* GameManager::getCSVData() {

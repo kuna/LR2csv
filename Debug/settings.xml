@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 	<scene name="select">
-		<file>LR2Files\Theme\20th tricoro for HD\Select\select.lr2skin</file>
+		<file>LR2Files\Theme\LR2\Select\select.lr2skin</file>
 	</scene>
 	<scene name="decide">
 		<file>LR2Files\Theme\LR2\Decide\decide.lr2skin</file>

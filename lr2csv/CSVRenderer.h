@@ -5,12 +5,12 @@
 class CSVRenderer {
 private:
 	static int cursorX, cursorY;
-	static bool (*drawFunc)(int, TCHAR*, CSVSRC*, CSVDST*);
+	static bool (*drawFunc)(int, const TCHAR*, CSVSRC*, CSVDST*);
 	static void (*notedrawFunc)();
 
 public:
 	static void SetCurPos(int x, int y);
-	static void SetdrawFunc(bool (*pFunc)(int, TCHAR*, CSVSRC*, CSVDST*));
+	static void SetdrawFunc(bool (*pFunc)(int, const TCHAR*, CSVSRC*, CSVDST*));
 	static void SetnotedrawFunc(void (*pFunc)());
 	
 	static void drawAll(CSVData *csvData);
@@ -22,7 +22,7 @@ public:
 	static void drawElement(CSVElement *csvElement);
 	static void drawImage(CSVElement *csvElement);
 	static void drawImage(CSVElement *csvElement, CSVSRC *src, CSVDST *dst);
-	static void drawText(CSVElement *csvElement, TCHAR *text);
+	static void drawText(CSVElement *csvElement, const TCHAR *text);
 	static void drawText(CSVElement *csvElement);
 
 	// also availabe with mine

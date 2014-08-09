@@ -20,45 +20,45 @@ void GameSetting::LoadSetting() {
 		xml.FindElem();
 		xml.IntoElem();
 		while (xml.FindElem(L"scene")) {
-			if (xml.GetAttrib(L"name").CompareNoCase(L"select") == 0) {
+			if (xml.GetAttrib(L"name").compare(L"select") == 0) {
 				xml.IntoElem();
 				xml.FindElem();
-				wcscpy(scene.select, xml.GetData());
+				wcscpy(scene.select, xml.GetData().c_str());
 				xml.OutOfElem();
-			} else if (xml.GetAttrib(L"name").CompareNoCase(L"decide") == 0) {
+			} else if (xml.GetAttrib(L"name").compare(L"decide") == 0) {
 				xml.IntoElem();
 				xml.FindElem();
-				wcscpy(scene.decide, xml.GetData());
+				wcscpy(scene.decide, xml.GetData().c_str());
 				xml.OutOfElem();
-			} else if (xml.GetAttrib(L"name").CompareNoCase(L"play") == 0) {
+			} else if (xml.GetAttrib(L"name").compare(L"play") == 0) {
 				xml.IntoElem();
 				xml.FindElem();
-				wcscpy(scene.play, xml.GetData());
+				wcscpy(scene.play, xml.GetData().c_str());
 				xml.OutOfElem();
-			} else if (xml.GetAttrib(L"name").CompareNoCase(L"result") == 0) {
+			} else if (xml.GetAttrib(L"name").compare(L"result") == 0) {
 				xml.IntoElem();
 				xml.FindElem();
-				wcscpy(scene.result, xml.GetData());
+				wcscpy(scene.result, xml.GetData().c_str());
 				xml.OutOfElem();
 			}
 		}
 
 		while (xml.FindElem(L"setting")) {
-			if (xml.GetAttrib(L"name").CompareNoCase(L"screen")==0) {
+			if (xml.GetAttrib(L"name").compare(L"screen")==0) {
 				xml.IntoElem();
 				xml.FindElem(L"width");
-				screen.width = _wtoi(xml.GetData());
+				screen.width = _wtoi(xml.GetData().c_str());
 				xml.FindElem(L"height");
-				screen.height = _wtoi(xml.GetData());
+				screen.height = _wtoi(xml.GetData().c_str());
 				xml.OutOfElem();
-			} else if (xml.GetAttrib(L"name").CompareNoCase(L"key")==0) {
+			} else if (xml.GetAttrib(L"name").compare(L"key")==0) {
 				// TODO: save key
-			} else if (xml.GetAttrib(L"name").CompareNoCase(L"play")==0) {
+			} else if (xml.GetAttrib(L"name").compare(L"play")==0) {
 				xml.IntoElem();
 				xml.FindElem(L"speed");
-				play.speed = _wtoi(xml.GetData());
+				play.speed = _wtoi(xml.GetData().c_str());
 				xml.FindElem(L"shutter");
-				play.shutter = _wtoi(xml.GetData());
+				play.shutter = _wtoi(xml.GetData().c_str());
 				xml.OutOfElem();
 			}
 		}

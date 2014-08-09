@@ -192,7 +192,8 @@ BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
 	// check is file avi?
 	std::wstring data(path);
 	std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-	if (ends_with(data, L".avi")) {
+	std::wstring ext(L".avi");
+	if (ends_with(data, ext)) {
 #ifdef USEVFW
 		// in case of avi
 		// http://www.gamedev.net/page/resources/_/technical/game-programming/working-with-avi-files-r840

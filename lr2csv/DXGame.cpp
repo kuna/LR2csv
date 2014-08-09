@@ -277,7 +277,7 @@ VOID DXGame::DrawTexture(DXTexture *texture, RECT *srcRect, RECT *dstRect, D3DXC
 	sprite->SetTransform(&orgmat);
 }
 
-VOID DXGame::DrawString(DXFont *font, TCHAR *str, int x, int y, int width, int size, int align, D3DCOLOR clr) {
+VOID DXGame::DrawString(DXFont *font, const TCHAR *str, int x, int y, int width, int size, int align, D3DCOLOR clr) {
 	// TODO: align/stretching/resize (matrix) - comparing size with original one
 	//
 

@@ -42,6 +42,14 @@ void SceneCommon::OnKeyUp(int key) {
 		// rhythm timer test
 		CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
 	}
+
+	if (key == VK_RIGHT) {
+		// select
+		GameManager::SelectList();
+	} else if (key == VK_LEFT) {
+		// TODO: go to previous one
+		CSVSelectList::goPrevList();
+	}
 	
 	if (key == VK_F1) {
 		GameManager::loadScene(GAMEMODE::SELECT);

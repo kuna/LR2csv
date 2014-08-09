@@ -81,6 +81,12 @@
     <ClCompile Include="Markup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CSVText.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVReader.h">
@@ -156,6 +162,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Markup.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVText.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
