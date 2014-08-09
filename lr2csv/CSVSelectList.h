@@ -120,7 +120,6 @@ public:
 
 	static void checkSlider();
 
-	static void SelectCurrent();			// enter focused one
 	static void goPrevList();				// go to previous folder
 	static void makeNewList();				// make new folder
 

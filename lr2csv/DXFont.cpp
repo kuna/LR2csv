@@ -87,7 +87,6 @@ BOOL DXFont::Release() {
 			FT_Stroker_Done(ftStroker);
 			ftStroker = 0;
 		}
-		FT_Done_Face(ftFace);
 		FT_Done_FreeType(ftLib);
 	
 		if (glyphTexture) {

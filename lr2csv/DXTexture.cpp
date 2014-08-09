@@ -308,8 +308,10 @@ BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
 	} else {
 		// in case of image
 		// check if texture is already exists ...
-		if (pTexture != 0)
+		if (pTexture != 0) {
 			pTexture->Release();
+			pTexture = 0;
+		}
 
 		D3DXIMAGE_INFO pImgInf;
 		if (FAILED(D3DXCreateTextureFromFileEx(pd3dDevice, path,

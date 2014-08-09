@@ -416,12 +416,6 @@ void CSVSelectList::Select(int songlistIdx) {
 #undef MACRO_B
 }
 
-void CSVSelectList::SelectCurrent() {
-	// get current item
-	// if current is folder? course?
-	// then show folder/course content and make new list
-}
-
 void CSVSelectList::goPrevList() {
 	if (listHistory.size() > 0) {
 		int l = listHistory.size()-1;
