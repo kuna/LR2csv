@@ -63,11 +63,25 @@ void GameManager::InitGame(DXGame *dxGame_) {
  *************************************
  TODO: 1. disable input during fadeout/closing
  2. make simple class for fast function forwarding and make it as argument
+ 3. fadeout effect - if there's scene's limit time, then it shows fadeout.
+   - if canceled fadeout, then limit time should (current+fadeout) time.
+   - when fadeout time started, all input are invalid.
  */
+
+void play_end() {
+	// change scene
+	// TODO: maybe opt set is necessary for result screen...
+	GameManager::loadScene(GAMEMODE::RESULT);
+}
 
 void play_start() {
 	CSVTimer::setTime(CSVTimerConst::PLAYSTART);
 	CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
+
+	// TODO callback 'end' function at the end of the timer ...
+	int bmsTime = 0 + csvData.fadeOutTime;
+	// TODO: get bms time from BMSData
+	CSVTimer::setCallback(CSVTimerConst::RHYTHM_TIMER, bmsTime, play_end);
 }
 
 void load_end_callback() {

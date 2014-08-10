@@ -13,10 +13,12 @@ void CSVTimer::invalidateTime() {
 
 	// and check is there any callback functions ...
 	for (int i=0; i<1000; i++) {
-		if (callbackTime[i]) {
+		if (callbacks[i]) {
 			if (getTime(i) > callbackTime[i]) {
+				void (*t)() = callbacks[i];
 				callbackTime[i] = 0;	// MUST clear time first!!
-				callbacks[i]();
+				callbacks[i] = 0;
+				t();
 			}
 		}
 	}

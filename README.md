@@ -121,4 +121,5 @@ TODO
 18. irrlicht 엔진과 통합
 19. change to rhw coordinate
 20. fade in / fade out, canceling 적용.
+21. scene마다 다른 key input system 만들기
 </pre>
