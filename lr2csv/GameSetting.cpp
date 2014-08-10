@@ -1,7 +1,5 @@
+#include "Stdafx.h"
 #include "GameSetting.h"
-#include "CSVFile.h"
-#include "Markup.h"	// for XML parsing
-
 
 SceneSetting GameSetting::scene;
 ScreenSetting GameSetting::screen;

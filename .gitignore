@@ -3,8 +3,8 @@
 /Debug/LR2files/
 /Release/LR2files/
 ipch/
-/lr2csv/Debug/
-/lr2csv/Release
+/*/Debug/
+/*/Release
 *.sdf
 *.opensdf
 *.suo

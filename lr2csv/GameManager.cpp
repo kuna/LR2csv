@@ -1,24 +1,13 @@
-﻿#include "GameManager.h"
-#include "CSVOption.h"
-#include "CSVTimer.h"
-#include "CSVConst.h"
-#include "CSVNumber.h"
-#include "CSVBargraph.h"
-#include "CSVSlider.h"
-#include "CSVSelectList.h"
-#include "CSVReader.h"
-#include "CSVFile.h"
+﻿#include "Stdafx.h"
+#include "GameManager.h"
 #include "GameSetting.h"
-
-// uses sqlite3
-#include "sqlite3.h"
-
-// for using FMOD
-#pragma comment(lib, "fmod_vc.lib")
-#include <fmod.hpp>
+#include "GameResource.h"
 
 int GameManager::GameMode;
 DXGame *GameManager::dxGame;
+
+// game resource
+GameResource gameResource;
 
 // sqlite
 sqlite3 *sql;
@@ -28,7 +17,7 @@ FMOD::System *fmod_system;
 FMOD::Sound *sounds[256];
 FMOD::Channel *channel = 0;
 
-// resources
+// resources (will be depreciated)
 DXTexture images[256];
 DXFont fonts[256];
 CSVData csvData;
@@ -67,6 +56,57 @@ void GameManager::InitGame(DXGame *dxGame_) {
 	}
 }
 
+
+/*
+ *************************************
+ * Scene functions
+ *************************************
+ TODO: 1. disable input during fadeout/closing
+ 2. make simple class for fast function forwarding and make it as argument
+ */
+
+void play_start() {
+	CSVTimer::setTime(CSVTimerConst::PLAYSTART);
+	CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
+}
+
+void load_end_callback() {
+	// check if load end
+	// if not, then this function should be signaled by GameResource class.
+	gameResource.isSongLoaded = true;	// TEMP
+	if (gameResource.isSongLoaded) {
+		CSVTimer::setCallback(CSVTimerConst::MAIN, 
+			CSVTimer::getTime(CSVTimerConst::MAIN)+csvData.playStartTime, play_start);
+	}
+}
+
+void load_start() {
+	// start load
+	// TODO
+
+	// and set callback timer
+	CSVTimer::setCallback(CSVTimerConst::MAIN, 
+		CSVTimer::getTime(CSVTimerConst::MAIN)+csvData.loadEndTime, load_end_callback);
+}
+
+void scene_play() {
+	// first load scene
+	GameManager::loadScene(GAMEMODE::PLAY);
+
+	// and set load start time
+	CSVTimer::setCallback(CSVTimerConst::MAIN, csvData.loadStartTime, load_start);
+}
+
+// works after FADEOUT time
+void cancel_current_scene() {
+}
+
+
+/*
+ ***************************************
+ * class functions
+ ***************************************
+ */
 void GameManager::LoadSounds() {
 	// load sound xml file
 	if (CSVReader::readCSVFile(L"LR2files\\Sound\\lr2.lr2ss", &csvSoundData)) {
@@ -165,8 +205,13 @@ int callback_addselectlist(void *data, int argc, char **argv, char **azColName){
 		songdata.longnote = atoi(argv[20]);
 		songdata.readme = atoi(argv[25]);
 		songdata.notecnt = atoi(argv[26]);
-		songdata.rate = rand()%100 / 100.0;			// TODO
-		CSVSelectList::addSong(songdata, rand()%4);	// TODO: clear
+		
+		CSVSongRecord songrecord;
+		songrecord.rate = rand()%100 / 100.0;			// TODO
+		songrecord.exscore = 100;
+		songrecord.playCount = rand()%20;
+		songrecord.clear = rand()%4;
+		CSVSelectList::addSong(songdata, songrecord);	// TODO: clear
 		
 		free(buf[0]);
 		free(buf[1]);
@@ -208,7 +253,12 @@ void GameManager::SelectList() {
 	case CSVSelectType::COURSEFOLDER:
 		break;
 	case CSVSelectType::SONG:
-		// goto decide screen ...?
+		// goto decide screen
+		loadScene(GAMEMODE::DECIDE);
+
+		// and set timer callback function for play screen...
+		CSVTimer::setCallback(CSVTimerConst::MAIN, csvData.sceneTime, scene_play);
+		
 		break;
 	}
 }
@@ -228,12 +278,10 @@ bool GameManager::setGameMode(int mode) {
 			CSVOption::setOption(CSVOptionConst::EXTRAMODE_ON, 0);
 			CSVOption::setOption(CSVOptionConst::PANEL_NOTSTART, 1);	// DEFAULT
 			CSVOption::setOption(CSVOptionConst::IR_RANK_LOADCOMPLETE, 1);
+			CSVOption::setOption(CSVOptionConst::IR_RIVAL_SCORE_COMPARING_OFF, 1);
+			CSVOption::setOption(CSVOptionConst::IR_RIVAL_SCORE_COMPARING_ON, 0);
 			//CSVOption::setOption(CSVOptionConst::IR_DISCONNECTED, 1);
 			//CSVOption::setOption(999, 1);	// that shouldn't be drawn - for debug
-
-			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test.bms");
-			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"test\\test2.bms");
-			//CSVSelectList::addData(CSVSelectDataConst::SONG, L"123\\test.bms");
 
 			CSVSelectList::makeSelectArray(7, CSVSongDataDifficulty::ALL);
 			CSVSelectList::Select(0);
@@ -344,6 +392,7 @@ bool GameManager::loadScene(int mode) {
 	//CSVRenderer::SetnotedrawFunc(0);	// <- need to implement
 
 	// need to implement event
+	return true;
 }
 
 void GameManager::LoadSkinResource(DXGame *dxGame) {
@@ -351,7 +400,8 @@ void GameManager::LoadSkinResource(DXGame *dxGame) {
 		// TODO: *.* name should be preprocessed
 		TCHAR absolutePath[256];
 		if (CSVFile::GetPathFromSettings(csvData.images[i].c_str(), absolutePath)) {
-			if (!images[i].LoadTexture(absolutePath, dxGame->GetD3D9Device())) {
+			if (!images[i].LoadTexture(absolutePath, dxGame->GetD3D9Device(), 
+				D3DCOLOR_XRGB(csvData.colorKey.r, csvData.colorKey.g, csvData.colorKey.b))) {
 				OutputDebugString(L"Failed to load some texture - ");
 				OutputDebugString(absolutePath);
 				OutputDebugString(L"\n");

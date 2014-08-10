@@ -1,7 +1,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <map>
-#include "CSVFont.h"
+#include "..\CSVParser\CSVFont.h"
 #pragma once
 
 // freetype

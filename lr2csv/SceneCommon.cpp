@@ -1,10 +1,5 @@
+#include "Stdafx.h"
 #include "SceneCommon.h"
-#include "CSVConst.h"
-#include "CSVTimer.h"
-#include "CSVSelectList.h"
-#include "CSVSlider.h"
-#include "CSVRenderer.h"
-#include "CSVButton.h"
 #include "GameManager.h"
 
 void SceneCommon::OnKeyDown(int key) {

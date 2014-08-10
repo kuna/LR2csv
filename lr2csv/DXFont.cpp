@@ -1,5 +1,5 @@
+#include "Stdafx.h"
 #include "DXFont.h"
-#include <vector>
 
 	
 BOOL DXFont::InitDXFont(IDirect3DDevice9* device) {
@@ -79,6 +79,8 @@ BOOL DXFont::getAvailableGlyphSlot(DXFontTexture *data) {
 	data->x = cx;
 	data->y = cy+fontData->borderWidth*2;
 	cx += data->width;
+
+	return TRUE;
 }
 
 BOOL DXFont::Release() {
@@ -102,8 +104,8 @@ BOOL DXFont::Release() {
 		texture_cache.clear();
 
 		ftLib = 0;
-		return TRUE;
 	}
+	return TRUE;
 }
 
 

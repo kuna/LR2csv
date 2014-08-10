@@ -1,19 +1,7 @@
+#include "Stdafx.h"
 #include "DXTexture.h"
-#include <string>
-#include <algorithm>
 
-#define USEDSHOW
 
-// for avi playback
-#pragma comment(lib, "winmm.lib")
-//#ifdef USEVFW
-#pragma comment(lib, "vfw32.lib")
-//#endif
-#ifdef USEDSHOW
-#pragma comment(lib, "strmiids.lib")
-#endif
-
-//
 bool ends_with(std::wstring const &a, std::wstring const &b) {
     auto len = b.length();
     auto pos = a.length() - len;
@@ -187,7 +175,7 @@ HRESULT   __stdcall   Receive    ( void* inst, IMediaSample *smp ) {
                                           *(INT_PTR*)&c##_=*p;   VirtualProtect(p,    4,PAGE_EXECUTE_READWRITE,&no);   *p=(INT_PTR)c; }
 #endif
 
-BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
+BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice, D3DCOLOR colorKey)
 {
 	// check is file avi?
 	std::wstring data(path);
@@ -318,7 +306,7 @@ BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
 			D3DX_DEFAULT, D3DX_DEFAULT, 
 			1,	// Mip level
 			0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, 0x00000001, 0x00000001,
-			0x00000000,	//
+			colorKey,	// colorkey
 			&pImgInf,
 			NULL,
 			&pTexture))) return FALSE;
@@ -332,20 +320,6 @@ BOOL DXTexture::LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice)
 
 RECT* DXTexture::GetRect() {
 	return &txtRect;
-}
-
-int DXTexture::getMovieTime() {
-	if (!aviTime)
-		return 0;
-	
-	DWORD ntime = GetTickCount();
-	int r = ntime - aviTime;
-	aviTime = ntime;
-	return r;
-}
-
-VOID DXTexture::updateMovieTime() {
-	aviTime = GetTickCount();
 }
 
 LPDIRECT3DTEXTURE9 DXTexture::GetTexture() {

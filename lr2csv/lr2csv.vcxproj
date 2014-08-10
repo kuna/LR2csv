@@ -50,8 +50,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);MARKUP_STL</PreprocessorDefinitions>
@@ -80,59 +79,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CSVBarGraph.cpp" />
-    <ClCompile Include="CSVButton.cpp" />
-    <ClCompile Include="CSVData.cpp" />
-    <ClCompile Include="CSVElement.cpp" />
-    <ClCompile Include="CSVFile.cpp" />
-    <ClCompile Include="CSVFont.cpp" />
-    <ClCompile Include="CSVNumber.cpp" />
-    <ClCompile Include="CSVOption.cpp" />
-    <ClCompile Include="CSVReader.cpp" />
-    <ClCompile Include="CSVRenderer.cpp" />
-    <ClCompile Include="CSVSelectList.cpp" />
-    <ClCompile Include="CSVSettings.cpp" />
-    <ClCompile Include="CSVSlider.cpp" />
-    <ClCompile Include="CSVText.cpp" />
-    <ClCompile Include="CSVTimer.cpp" />
     <ClCompile Include="DXFont.cpp" />
     <ClCompile Include="DXGame.cpp" />
     <ClCompile Include="DXTexture.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="GameResource.cpp" />
     <ClCompile Include="GameSetting.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Markup.cpp" />
     <ClCompile Include="SceneCommon.cpp" />
-    <ClCompile Include="sqlite3.c" />
+    <ClCompile Include="Stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CSVBargraph.h" />
-    <ClInclude Include="CSVButton.h" />
-    <ClInclude Include="CSVConst.h" />
-    <ClInclude Include="CSVData.h" />
-    <ClInclude Include="CSVdrawarg.h" />
-    <ClInclude Include="CSVElement.h" />
-    <ClInclude Include="CSVFile.h" />
-    <ClInclude Include="CSVFont.h" />
-    <ClInclude Include="CSVNumber.h" />
-    <ClInclude Include="CSVOption.h" />
-    <ClInclude Include="CSVReader.h" />
-    <ClInclude Include="CSVRenderer.h" />
-    <ClInclude Include="CSVSelectList.h" />
-    <ClInclude Include="CSVSettings.h" />
-    <ClInclude Include="CSVSlider.h" />
-    <ClInclude Include="CSVText.h" />
-    <ClInclude Include="CSVTimer.h" />
     <ClInclude Include="DXFont.h" />
     <ClInclude Include="DXGame.h" />
     <ClInclude Include="DXTexture.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameResource.h" />
     <ClInclude Include="GameSetting.h" />
-    <ClInclude Include="Markup.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneCommon.h" />
-    <ClInclude Include="sqlite3.h" />
+    <ClInclude Include="Stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

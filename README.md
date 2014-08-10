@@ -5,6 +5,8 @@ LR2csv
 
 lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 퀄러티의 BMS 구동기이며, 많은 사람들이 애용하고 있고 고퀄러티의 스킨 또한 다수 존재하는 멋진 프로그램입니다. 하지만, 아쉽게도 lavalse씨는 프로그램 개발을 중단한 상태이고, 코드 또한 존재하지 않습니다. 따라서 제가 직접 Lunatic Rave 2의 스킨 에뮬레이팅 프로그램을 제작하게 되었습니다.
 
+이 라이브러리는 이후 [Rhythmus](https://github.com/kuna/Rhythmus)의 skin engine으로 사용될 예정입니다.
+
 ### Abilities
 
 * Drawing *.csv file with various commands (#SRC~, #DST~ ...)
@@ -21,6 +23,10 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 * DirectX SDK (June 2010) - dx9
 * Freetype
 * FMOD Library
+* BMSParser / md5 (included)
+* sqlite3 (included, not related with CSV module)
+* CMarkup XML parser (included)
+* boost 1.53
 
 ### Future works
 
@@ -100,10 +106,19 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140810
+- module refactored & added Stdafx.h for precompile header
+- colorkey support
+- BMS parser added (alpha ver.)
+- callback function added for CSVTimer
+
+---------------------
+
 TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 14. 타이머 콜백 함수 만들기 (play에서 ready랑 play의 rhythm timer 시작 부분에 사용할 것)
 16. CSVFile의 filtering 메서드 강화시키기
 18. irrlicht 엔진과 통합
 19. change to rhw coordinate
+20. fade in / fade out, canceling 적용.
 </pre>

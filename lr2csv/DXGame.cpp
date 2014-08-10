@@ -1,8 +1,7 @@
-﻿#include <Windows.h>
+﻿#include "Stdafx.h"
 #include "DXGame.h"
 
-// for GDIPLUS
-ULONG_PTR m_gdiplusToken;
+
 DXGame *dxGame;		// warning: static method?
 
 LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )

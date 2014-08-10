@@ -1,9 +1,5 @@
 #pragma once
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <DShow.h>
-#include <vmr9.h>
-#include <Vfw.h>
+#include "Stdafx.h"
 
 /* ISampleGrabber definition */
 interface ISampleGrabberCB : public IUnknown
@@ -33,12 +29,13 @@ EXTERN_C const CLSID CLSID_NullRenderer;
 
 class DXTexture {
 private:
+#ifdef USEVFW
 	PAVIFILE pAvi;
 	AVIFILEINFO aviInfo;
 	PAVISTREAM pStream;
 	PGETFRAME frame;
 	int aviTime;
-	
+#endif
 	IGraphBuilder* g;
 	IBaseFilter* pVmr, *sourceFilter;
 	IMediaControl* m;
@@ -49,16 +46,12 @@ private:
 
 	RECT txtRect;
 	LPDIRECT3DTEXTURE9 pTexture;
-
-	DWORD startTime;
-	int getMovieTime();
 public:
-	BOOL LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice);
+	BOOL LoadTexture(const TCHAR *path, IDirect3DDevice9* pd3dDevice, D3DCOLOR colorKey=0);
 	BOOL isTextureLoaded();
 	RECT* GetRect();
 	LPDIRECT3DTEXTURE9 GetTexture();
 	BOOL Release();
-	VOID updateMovieTime();
 
 	bool loop;
 	int width;

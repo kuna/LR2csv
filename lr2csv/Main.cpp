@@ -2,19 +2,9 @@
  * Uses DXUT
  */
 
+#include "Stdafx.h"
 #include "DXGame.h"
 #include "DXFont.h"
-#include "CSVFont.h"
-#include "CSVData.h"
-#include "CSVReader.h"
-#include "CSVTimer.h"
-#include "CSVConst.h"
-#include "CSVOption.h"
-#include "CSVSelectList.h"
-#include "CSVFile.h"
-#include "CSVRenderer.h"
-#include "CSVButton.h"
-#include "CSVSlider.h"
 #include "GameManager.h"
 #include "GameSetting.h"
 #include "SceneCommon.h"
@@ -79,6 +69,8 @@ bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
 				src->getTextAlign(), rgba);
 		}
 	}
+
+	return true;
 }
 
 void notedrawFunc() {
