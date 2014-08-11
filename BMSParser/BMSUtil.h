@@ -11,7 +11,6 @@ public:
 		OutputDebugString((title + L" - " + desc).c_str());
 	}
 	
-	static std::wstring CheckEncoding(BYTE BOM[]);
 	static std::wstring GetHash(BYTE data[], int len);
 	static bool IsInteger(std::wstring str);
 	static int ExtHexToInt(std::wstring hex);

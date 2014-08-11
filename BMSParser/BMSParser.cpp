@@ -35,42 +35,11 @@ bool BMSParser::LoadBMSFile(std::wstring path, BMSData bd) {
 }
 
 bool BMSParser::LoadBMSFile(BYTE *data, BMSData bd) {
-	BMSUtil::Log(L"BMSParser", L"checking locale...");
-		
-	// just process data
-	bd.hash = BMSUtil::GetHash(data, strlen((char*)data));
-		
-	// check locale
-	std::wstring locale = BMSUtil::CheckEncoding(data);
+	// check encoding
 	std::wstring wstr;
-	    
-	if (locale.compare(L"ANSI") == 0) {
-		try {
-		    // attempt SHIFT_JIS first
-		    // we also can use https://github.com/hnakamur/sjis-check,
-		    // but it may be too much slow in mobile device.
-			wstr = boost::locale::conv::to_utf<wchar_t>((char*)data, "CP932");
-			int examineLen = (wstr.length()>1000)?1000:wstr.length();
-			for (int i=0; i< examineLen ; i++) {
-				if (wstr[i] >= 44032 && wstr[i] <= 55203) {
-					// EUC-KR encoding
-					wstr = boost::locale::conv::to_utf<wchar_t>((char*)data, "CP949");
-					break;
-				}
-			}
-		} catch (...) {
-		    BMSUtil::Log(L"BMSParser", L"Unsupported Encoding Exception");
-		    return false;
-		}
-	} else {
-		// utf8?
-	    try {
-			wstr = boost::locale::conv::to_utf<wchar_t>((char*)data, "UTF-8");
-		} catch (...) {
-		    BMSUtil::Log(L"BMSParser", L"Unsupported Encoding Exception");
-		    return false;
-		}
-	}
+	AutoEncoder::convertEncodingAuto((const char*)data, wstr);
+	if (wstr.length() == 0)
+		return false;
 	
 	// init before parsing
 	for (int i=0; i<14; i++) {

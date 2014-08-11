@@ -3,23 +3,6 @@
 #include "BMSKeyData.h"
 #include <boost/regex.hpp>
 
-std::wstring BMSUtil::CheckEncoding(BYTE BOM[]) {
-	if( (BOM[0] & 0xFF) == 0xEF && (BOM[1] & 0xFF) == 0xBB && (BOM[2] & 0xFF) == 0xBF )
-		return L"UTF-8";
-	else if( (BOM[0] & 0xFF) == 0xFE && (BOM[1] & 0xFF) == 0xFF )
-		return L"UTF-16BE";
-	else if( (BOM[0] & 0xFF) == 0xFF && (BOM[1] & 0xFF) == 0xFE )
-		return L"UTF-16LE";
-	else if( (BOM[0] & 0xFF) == 0x00 && (BOM[1] & 0xFF) == 0x00 && 
-			(BOM[0] & 0xFF) == 0xFE && (BOM[1] & 0xFF) == 0xFF )
-		return L"UTF-32BE";
-	else if( (BOM[0] & 0xFF) == 0xFF && (BOM[1] & 0xFF) == 0xFE && 
-			(BOM[0] & 0xFF) == 0x00 && (BOM[1] & 0xFF) == 0x00 )
-		return L"UTF-32LE";
-	else
-		return L"ANSI";
-}
-
 std::wstring BMSUtil::GetHash(BYTE data[], int len) {
 	// requires md5.h
 	md5_state_t state;

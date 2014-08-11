@@ -34,15 +34,6 @@ std::wstring getPath(std::wstring w) {
 	return absolutePath;
 }
 
-void UTF8toTCHAR(char *src, wchar_t **target) 
-{  
-	if (!src)
-		return;
-    int nSize = MultiByteToWideChar(CP_UTF8, 0, src, -1, 0, 0);  
-	*target = (TCHAR*)malloc(nSize*sizeof(TCHAR));
-    MultiByteToWideChar(CP_UTF8, 0, src, -1, *target, nSize);
-}
-
 void GameManager::InitGame(DXGame *dxGame_) {
 	dxGame = dxGame_;
 
@@ -81,7 +72,7 @@ void play_start() {
 	// TODO callback 'end' function at the end of the timer ...
 	int bmsTime = 0 + csvData.fadeOutTime;
 	// TODO: get bms time from BMSData
-	CSVTimer::setCallback(CSVTimerConst::RHYTHM_TIMER, bmsTime, play_end);
+	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, bmsTime, play_end);
 }
 
 void load_end_callback() {
@@ -89,8 +80,8 @@ void load_end_callback() {
 	// if not, then this function should be signaled by GameResource class.
 	gameResource.isSongLoaded = true;	// TEMP
 	if (gameResource.isSongLoaded) {
-		CSVTimer::setCallback(CSVTimerConst::MAIN, 
-			CSVTimer::getTime(CSVTimerConst::MAIN)+csvData.playStartTime, play_start);
+		CSVTimer::setTime(CSVTimerConst::READY);
+		CSVTimer::setCallback(CSVTimerConst::READY, csvData.playStartTime, play_start);
 	}
 }
 
@@ -171,42 +162,35 @@ void GameManager::StopSound(int num) {
 }
 
 int callback_addselectlist(void *data, int argc, char **argv, char **azColName){
-	TCHAR *buf[10];
 	if ((int)data == 0) { // initalize
 		int type = atoi(argv[1]);
 		if (type == 6) {
 			// course
-			UTF8toTCHAR(argv[0], &buf[0]);
-			CSVSelectList::addCourseFolder(buf[0]);
-			free(buf[0]);
+			std::wstring wstr;
+			AutoEncoder::convertEncodingAuto(argv[0], wstr);
+			CSVSelectList::addCourseFolder(wstr);
 		} else if (type == 2) {
 			// folder
-			UTF8toTCHAR(argv[0], &buf[0]);
-			CSVSelectList::addCustomFolder(buf[0]);
-			free(buf[0]);
+			std::wstring wstr;
+			AutoEncoder::convertEncodingAuto(argv[0], wstr);
+			CSVSelectList::addCustomFolder(wstr);
 		} else if (type == 1) {
 			// folder
-			UTF8toTCHAR(argv[0], &buf[0]);
-			UTF8toTCHAR(argv[2], &buf[1]);
-			CSVSelectList::addFolder(buf[1], buf[0]);
-			free(buf[0]);
-			free(buf[1]);
+			std::wstring wfolder, wpath;
+			AutoEncoder::convertEncodingAuto(argv[0], wfolder);
+			AutoEncoder::convertEncodingAuto(argv[2], wpath);
+			CSVSelectList::addFolder(wpath, wfolder);
 		}
 	} else if ((int)data == 1) {// load song
-		UTF8toTCHAR(argv[0], &buf[0]);	// hash
-		UTF8toTCHAR(argv[1], &buf[1]);	// title
-		UTF8toTCHAR(argv[2], &buf[2]);	// subtitle
-		UTF8toTCHAR(argv[3], &buf[3]);	// genre
-		UTF8toTCHAR(argv[4], &buf[4]);	// artist
-		UTF8toTCHAR(argv[5], &buf[5]);	// tag
-		UTF8toTCHAR(argv[6], &buf[6]);	// path
+		// 0 is hash
 
 		CSVSongData songdata;
-		songdata.title = buf[1];
-		songdata.subtitle = buf[2];
-		songdata.genre = buf[3];
-		songdata.artist = buf[4];
-		songdata.path = buf[6];
+		AutoEncoder::convertEncodingAuto(argv[1], songdata.title);
+		AutoEncoder::convertEncodingAuto(argv[2], songdata.subtitle);
+		AutoEncoder::convertEncodingAuto(argv[3], songdata.genre);
+		AutoEncoder::convertEncodingAuto(argv[4], songdata.artist);
+		AutoEncoder::convertEncodingAuto(argv[6], songdata.path);
+
 		char *p;
 		songdata.folder = strtoul(argv[9], &p, 16);
 		songdata.parent = strtoul(argv[14], &p, 16);
@@ -226,14 +210,6 @@ int callback_addselectlist(void *data, int argc, char **argv, char **azColName){
 		songrecord.playCount = rand()%20;
 		songrecord.clear = rand()%4;
 		CSVSelectList::addSong(songdata, songrecord);	// TODO: clear
-		
-		free(buf[0]);
-		free(buf[1]);
-		free(buf[2]);
-		free(buf[3]);
-		free(buf[4]);
-		free(buf[5]);
-		free(buf[6]);
 	}
 
 	return 0;
@@ -382,8 +358,8 @@ void GameManager::startScene() {
 	switch (GameMode) {
 		case GAMEMODE::PLAY:
 			// set timer
-			CSVTimer::setTime(CSVTimerConst::READY);
-			CSVTimer::setTime(CSVTimerConst::PLAYSTART, 1000);
+			//CSVTimer::setTime(CSVTimerConst::READY);
+			//CSVTimer::setTime(CSVTimerConst::PLAYSTART, 1000);
 			break;
 	}
 }

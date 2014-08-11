@@ -151,53 +151,6 @@ void CSVSelectList::addRival(CSVSongData songdata, int clear, int winlose) {
 	data.push_back(d);
 }
 
-/*
-void CSVSelectList::addData(CSVSelectDataConst index, TCHAR *path) {
-	// create 
-	CSVSelectSong *ssdata = new CSVSelectSong();
-	memset(ssdata, 0, sizeof(CSVSelectSong));
-
-	ssdata->minBPM = 120;
-	ssdata->maxBPM = 120;
-	ssdata->key = 7;
-	ssdata->difficulty = rand()%2+1;				// TODO
-	ssdata->judge = CSVSelectDataJudge::EASY;		// TODO
-	wcscpy(ssdata->path, path);
-	ssdata->noteCnt = 1234;				// TODO
-	ssdata->level = rand()%10+2;		// TODO
-
-	// first search all data
-	// if anything dir(name) exists
-	TCHAR dir[256];
-	wcscpy(dir, path);
-	GetDirectory(dir);
-
-	bool find = false;
-	for (int i=0; i<data.size(); i++) {
-		if (wcscmp(data[i]->dir, dir) == 0) {
-			ssdata->parent = data[i];
-			data[i]->songs.push_back(ssdata);
-			find = true;
-			break;
-		}
-	}
-
-	// if no group exists, create one
-	if (!find) {
-		CSVSelectData* sdata = new CSVSelectData();
-		memset(sdata, 0, sizeof(CSVSelectData));
-
-		// fill data
-		wcscpy(sdata->dir, dir);
-		sdata->index = index;
-		sdata->readme[0] = 0;	// TODO: scan Directory for *.txt
-
-		ssdata->parent = sdata;
-		sdata->songs.push_back(ssdata);
-		data.push_back(sdata);
-	}
-}*/
-
 void CSVSelectList::clearData(bool release) {
 	// first delete all songlist to prevent drawing
 	songlist.clear();
@@ -255,7 +208,7 @@ void CSVSelectList::Select(int songlistIdx) {
 	CSVSelectData* current = songlist[songlistIdx];
 	
 	OutputDebugString(L"SONG CHANGED - ");
-	OutputDebugString(current->songData.path.c_str());
+	OutputDebugString(current->songData.title.c_str());
 	OutputDebugString(L"\n");
 
 	// change slider
@@ -468,7 +421,10 @@ void CSVSelectList::goPrevList() {
 		// move previous list and make new list
 		data = listHistory[l]->data;
 		makeSelectArray();
+
+		// select & recalculate index
 		Select(listHistory[l]->pos);
+		currentSkinIndex = currentIndex;
 
 		// release & pop
 		free(listHistory[l]);
@@ -483,6 +439,10 @@ void CSVSelectList::makeNewList() {
 	h->data = data;
 	h->pos = currentIndex;
 	listHistory.push_back(h);
+
+	// select 0 & recalculate index
+	Select(0);
+	currentSkinIndex = currentIndex;
 
 	// clear current
 	clearData(false);
@@ -505,9 +465,6 @@ void CSVSelectList::MoveUp() {
 	// move index change, and duration
 	Select(currentIndex-1);
 	moveProgress = 0;
-
-	if (currentSkinIndex < 0)
-		currentSkinIndex += songlist.size();
 }
 
 void CSVSelectList::MoveDown() {
@@ -527,7 +484,7 @@ void CSVSelectList::MoveDown() {
 	// move index change, and duration
 	Select(currentIndex+1);
 	moveProgress = 1;
-	currentSkinIndex++;
+	currentSkinIndex = currentIndex;
 }
 
 double CSVSelectList::CalculateMoving() {
@@ -540,7 +497,7 @@ double CSVSelectList::CalculateMoving() {
 			// finish moving
 			moveProgress = 0;
 			moveDirection = 0;
-			currentSkinIndex--;
+			currentSkinIndex = currentIndex;
 		}
 	} else if (moveDirection == 2) {
 		// moving down 
@@ -549,9 +506,6 @@ double CSVSelectList::CalculateMoving() {
 			// finish moving
 			moveProgress = 0;
 			moveDirection = 0;
-	
-			if (currentSkinIndex >= songlist.size())
-				currentSkinIndex -= songlist.size();
 		}
 	}
 

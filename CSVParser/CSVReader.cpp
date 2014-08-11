@@ -62,9 +62,11 @@ bool CSVReader::readCSVFile(TCHAR *path, CSVData *csvData) {
 
 	// read file
 	TCHAR *fileData;
-	if (!readFile(absolutePath, &fileData)) {
+	std::wstring fileData_wstr;
+	if (!AutoEncoder::readfileEncodingAuto(absolutePath, fileData_wstr))
 		return false;
-	}
+	fileData = (TCHAR*)calloc(fileData_wstr.length()+10, sizeof(TCHAR));
+	wcscpy(fileData, fileData_wstr.c_str());
 
 	wcscpy(csvData->path, absolutePath);
 
@@ -108,70 +110,6 @@ bool CSVReader::parseCSVData(TCHAR *data) {
 		n = wcstok(NULL, L"\n");
 	}
 
-	return true;
-}
-
-bool CSVReader::readFile(TCHAR *path, TCHAR **out) {
-	FILE *fp;
-	fp = _wfopen(path, L"rb");
-	if (!fp) return false;
-
-	fseek(fp, 0, SEEK_END);
-	long fileSize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	
-	// check unicode reading
-	bool isUnicode;
-	char sig[10];
-	char sig_unicode[] = {0xFF, 0xFE};
-	fread(sig, 1, 2, fp);
-
-	if (memcmp(sig, sig_unicode, 2) == 0) {
-		isUnicode = true;
-	} else {
-		fseek(fp, 0, SEEK_SET);
-		isUnicode = false;
-	}
-
-	if (isUnicode) {
-		*out = (TCHAR*)malloc(fileSize + 10);
-		fread(*out, 1, fileSize, fp);
-	} else {
-		// ASCII - check encoding ...
-		char *_noteData = (char*)malloc(fileSize + 10);
-		fread(_noteData, 1, fileSize, fp);
-
-		/*************************
-		Automatic Encoding
-		1. First, JP Encoding - check あえいおう。。。アエイオウ。。。 from tag
-		2. if No JP found? then KR Encoding
-		*************************/
-		//BMSUtil::convert("test", "SHIFT_JIS", &noteData);
-		//free(noteData);
-
-		int converted = 0;
-		if (!convert(_noteData, fileSize, "SHIFT_JIS", out)) {
-			if (!convert(_noteData, fileSize, "CP949", out)) {
-				// failed to convert data!
-				free(_noteData);
-				return false;
-			}
-		}
-
-		// header len ... or first parse necessary
-		// check SHIFT_JIS
-		for (int i=0;i<1000;i++) {
-			if ((*out)[i] >= 44032 && (*out)[i] <= 55203) {
-				// free previous one
-				free(*out);
-				convert(_noteData, fileSize, "CP949", out);
-				break;
-			}
-		}
-
-		free(_noteData);
-	}
-	fclose(fp);
 	return true;
 }
 
@@ -336,16 +274,7 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			{
 			}
 		} else if (wcscmp(args[0], L"#IMAGE") == 0) {
-			for (int i=0; i<wcslen(args[1]); i++)
-				if (args[1][i] == L'¥')
-					args[1][i] = L'\\';
-			TCHAR *n = new TCHAR[256];
-			wcscpy(n, args[1]);
-			currentCSV->images.push_back(n);
-
-			// string had changed into wstring,
-			// so we need to remove original
-			delete n;
+			currentCSV->images.push_back(args[1]);
 		} else if (wcscmp(args[0], L"#BAR_CENTER") == 0) {
 			currentCSV->barCenter = _wtoi(args[1]);
 		} else if (wcscmp(args[0], L"#FONT") == 0) {
@@ -406,9 +335,11 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			
 			// add arg file to processing line.
 			TCHAR *fileData;
-			if (!readFile(absolutePath, &fileData)) {
+			std::wstring fileData_wstr;
+			if (!AutoEncoder::readfileEncodingAuto(absolutePath, fileData_wstr))
 				return;
-			}
+			fileData = (TCHAR*)calloc(fileData_wstr.length()+10, sizeof(TCHAR));
+			wcscpy(fileData, fileData_wstr.c_str());
 
 			// split lines
 			recycled.push_back(fileData);
@@ -457,43 +388,4 @@ int CSVReader::checkCondition(int num) {
 	// call DstOption for validation
 
 	return CSVOption::getOption(num);
-}
-
-bool CSVReader::convert(const char *input, int len, const char *from, TCHAR **output) {
-	// convert encoding to TCHAR
-#ifdef ICONV
-    iconv_t cd;
-    if ((cd = iconv_open("UTF-16LE", from)) == (iconv_t) -1) {
-        iconv_close(cd);
-        return FALSE;
-    } else {
-        size_t in_bytes = len;
-		size_t out_bytes = (in_bytes+1) *4;
-        char *out = (char *) calloc(out_bytes, sizeof(char));
-        char *outp = out;
-
-		if(iconv(cd, &input, &in_bytes, &outp, &out_bytes)==-1) {
-			char *sterr = strerror(errno);
-			iconv_close(cd);
-			if (out) free(out);
-			return FALSE;
-		}
-
-		*output = (TCHAR*)malloc(out_bytes);
-		wcscpy(*output, (TCHAR*)out);
-
-        iconv_close(cd);
-		if (out) free(out);
-        return TRUE;
-	}
-#else
-	// code page 50222?
-	int codepage = CP_ACP;
-	if (strcmp(from, "SHIFT_JIS") == 0)
-		codepage = 50220;
-	int nLen = MultiByteToWideChar(codepage, 0, input, strlen(input), NULL, NULL);
-	*output = (TCHAR*)malloc(nLen*sizeof(TCHAR));
-	MultiByteToWideChar(codepage, 0, input, strlen(input), *output, nLen);
-#endif
-	return true;
 }

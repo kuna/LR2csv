@@ -26,6 +26,7 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 * BMSParser / md5 (included)
 * sqlite3 (included, not related with CSV module)
 * CMarkup XML parser (included)
+* AutoEncoder(iconv, uchardet) (included)
 * boost 1.53
 
 ### Future works

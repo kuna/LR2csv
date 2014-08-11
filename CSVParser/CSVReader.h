@@ -17,8 +17,6 @@ private:
 	static void processCSVLines();
 	static void processCSVLine(TCHAR *data);
 	static int checkCondition(int num);
-	static bool convert(const char *input, int len, const char *from, TCHAR **output);
-	static bool readFile(TCHAR *path, TCHAR **out);	// with Automatic encoding
 
 private:
 	static CSVData *currentCSV;

@@ -5,6 +5,14 @@
 #include <tchar.h>
 #include <Windows.h>
 
+// autoencoder (for sqlite3)
+#include "..\AutoEncoder\AutoEncoder.h"
+#ifdef _DEBUG
+#pragma comment(lib, "..\\Debug\\AutoEncoder.lib")
+#else
+#pragma comment(lib, "..\\Release\\AutoEncoder.lib")
+#endif
+
 // uses CSVParser
 #include "..\CSVParser\CSVBargraph.h"
 #include "..\CSVParser\CSVButton.h"

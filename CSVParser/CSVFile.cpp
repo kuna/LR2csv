@@ -1,4 +1,4 @@
-#include "Stdafx.h"
+﻿#include "Stdafx.h"
 #include "CSVFile.h"
 #include "CSVSettings.h"
 
@@ -17,11 +17,20 @@ void CSVFile::GetCurrentExecutionPath(TCHAR *out) {
 	}
 }
 
+void CSVFile::MakePathCorrect(TCHAR *jis_path) {
+	for (int i=0; i<wcslen(jis_path); i++) {
+		if (jis_path[i] == L'¥') {
+			jis_path[i] = L'\\';
+		}
+	}
+}
+
 void CSVFile::GetAbsolutePath(const TCHAR *lr2Path, TCHAR *out) {
 	GetCurrentExecutionPath();		// initalization
 	TCHAR t[256];
 	wcscpy(t, exePath);
 	wcscat(t, lr2Path);
+	MakePathCorrect(t);
 	wcscpy(out, t);
 }
 
