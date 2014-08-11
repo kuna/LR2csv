@@ -15,9 +15,12 @@ class CSVData;	// prevent each-referencing
 
 class CSVCustomOption {
 public:
-	TCHAR optName[256];
-	TCHAR optKey[256];
-	TCHAR optValue[256];
+	CSVCustomOption();
+	std::wstring optName;
+	std::wstring optPath;
+	std::wstring optValue;
+	int optType;		// if 0, then CUSTOMFILE, else, CUSTOMOPTION.
+	int optNum;			// for CUSTOMOPTION
 	std::vector<std::wstring> optValues;
 
 public:
@@ -29,17 +32,16 @@ public:
 
 class CSVSettings {
 private:
-	static std::map<std::wstring, std::wstring> settings;
-	static TCHAR currentCSV[256];
+	static std::map<std::wstring, CSVCustomOption> settings;
+	static CSVData *csv;
 
 public:
-	static bool LoadSettings(TCHAR *csvName);
+	static bool LoadSettings(CSVData *csvData);
 	static bool SaveSettings();
+	static void ClearSettings();
 	static void SetDefaultValue(CSVData *csvData, bool overwrite=true);
-
-	static bool GetKeyValue(const TCHAR *key, TCHAR *out);
-	static bool GetKeyValue(const TCHAR *key, int *out);
-	static bool GetKeyValue(int key, int *out);
-
-	static TCHAR* GetCurrentCSV();
+	static void ChangeDSTOpt();
+	static CSVCustomOption& GetOption(std::wstring name);
+	static void SetOption(std::wstring name, CSVCustomOption &val);
+	static bool GetPathValue(const TCHAR* lr2Path, std::wstring &val);
 };

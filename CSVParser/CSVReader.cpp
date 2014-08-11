@@ -68,7 +68,7 @@ bool CSVReader::readCSVFile(TCHAR *path, CSVData *csvData) {
 	fileData = (TCHAR*)calloc(fileData_wstr.length()+10, sizeof(TCHAR));
 	wcscpy(fileData, fileData_wstr.c_str());
 
-	wcscpy(csvData->path, absolutePath);
+	csvData->csvPath = absolutePath;
 
 	// split lines & initalize
 	conditionDepth = 0;
@@ -295,11 +295,7 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			int idx = _wtoi(args[1]);
 			currentCSV->csvFont[idx]->SetData(args);
 		} else if (wcscmp(args[0], L"#ENDOFHEADER") == 0) {
-			// if CSVSettings hadn't loaded, then load one
-			// else, let unsetted settings to be set
-			if (wcscmp(CSVSettings::GetCurrentCSV(), currentCSV->path) != 0)
-				CSVSettings::LoadSettings(currentCSV->path);
-			CSVSettings::SetDefaultValue(currentCSV, false);
+			// ...?
 		} else if (wcscmp(args[0], L"#SCRATCHSIDE") == 0) {
 		} else if (wcscmp(args[0], L"#TRANSCOLOR") == 0) {
 			// set transcolor
@@ -322,11 +318,23 @@ void CSVReader::processCSVLine(TCHAR *data) {
 		} else if (wcscmp(args[0], L"#CUSTOMOPTION") == 0) {
 			// TODO: need to implement #CUSTOMOPTION with CSVData
 			CSVCustomOption *csvOption = new CSVCustomOption();
-			wcscpy(csvOption->optName, args[1]);
-			wcscpy(csvOption->optKey, args[2]);
-			wcscpy(csvOption->optValue, args[3]);
+			csvOption->optName = args[1];
+			csvOption->optType = _wtoi(args[2]);
+			csvOption->optNum = 0;
 
-			// TODO: parse optValues
+			// parse optValues
+			int idx = 3;
+			while (args[idx]) {
+				csvOption->optValues.push_back(args[idx]);
+				idx++;
+			}
+		} else if (wcscmp(args[0], L"#CUSTOMFILE") == 0) {
+			// custom file path.
+			CSVCustomOption *csvOption = new CSVCustomOption();
+			csvOption->optName = args[1];
+			csvOption->optPath = args[2];
+			csvOption->optValue = args[3];
+			
 			currentCSV->csvOptions.push_back(csvOption);
 		} else if (wcscmp(args[0], L"#INCLUDE") == 0) {
 			// convert path

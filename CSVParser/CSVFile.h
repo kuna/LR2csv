@@ -8,6 +8,7 @@ private:
 	static TCHAR exePath[256];
 
 public:
+	static void getOnlyFileName(std::wstring &path, std::wstring &outfn);
 	static void MakePathCorrect(TCHAR *jis_path);
 	static void GetCurrentExecutionPath(TCHAR *out=0);
 	static void GetAbsolutePath(const TCHAR *lr2Path, TCHAR *absolutePath);

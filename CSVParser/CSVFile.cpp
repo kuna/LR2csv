@@ -94,6 +94,25 @@ bool CSVFile::GetFileList(const TCHAR *lr2Path, std::vector<std::wstring> &resAr
 }
 
 bool CSVFile::GetPathFromSettings(const TCHAR *lr2Path, TCHAR *out) {
+	// first of all, get setting and replace path
+	std::wstring keyval;
+	bool foundSetting = false;
+	if (CSVSettings::GetPathValue(lr2Path, keyval)) {
+		std::wstring wpath = lr2Path;
+		int p = wpath.find(L'*');
+		if (p != std::wstring::npos) {
+			wpath.replace(p, 1, keyval);
+			if (boost::filesystem::exists(wpath)) {
+				wcscpy(out, wpath.c_str());
+				foundSetting = true;
+			}
+		}
+	}
+
+	if (foundSetting)
+		return true;
+
+	// when no setting found, then get default value
 	std::vector<std::wstring> files;
 	GetFileList(lr2Path, files);
 
@@ -103,15 +122,14 @@ bool CSVFile::GetPathFromSettings(const TCHAR *lr2Path, TCHAR *out) {
 		wcscpy(out, files[0].c_str());
 		return true;
 	} else {
-		// search settings
-		TCHAR keyval[256];
-		if (CSVSettings::GetKeyValue(lr2Path, keyval)) {
-			// TODO: copy path
-			//wcscpy(out, files[0].c_str());
-		} else {
-			// index 0
-			wcscpy(out, files[0].c_str());
-		}
+		// index 0 is default
+		wcscpy(out, files[0].c_str());
 		return true;
 	}
+}
+
+void CSVFile::getOnlyFileName(std::wstring &path, std::wstring &outfn) {
+	TCHAR fn[256];
+	_wsplitpath(path.c_str(), 0, 0, fn, 0);
+	outfn = fn;
 }

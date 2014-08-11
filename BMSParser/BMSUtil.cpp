@@ -4,20 +4,7 @@
 #include <boost/regex.hpp>
 
 std::wstring BMSUtil::GetHash(BYTE data[], int len) {
-	// requires md5.h
-	md5_state_t state;
-	md5_byte_t digest[16];
-	TCHAR hex_output[16*2 + 1];
-	int di;
-
-	md5_init(&state);
-	md5_append(&state, (const md5_byte_t *)data, len);
-	md5_finish(&state, digest);
-
-	for (di = 0; di < 16; ++di)
-		wsprintf(hex_output + di * 2, L"%02x", digest[di]);
-	
-	return hex_output;
+	return md5::GetHash((const char*)data, len);
 }
 	
 bool BMSUtil::IsInteger(std::wstring str) {

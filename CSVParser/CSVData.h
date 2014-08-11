@@ -12,6 +12,8 @@ struct CSVTransColor {
 class CSVData {
 public:
 	~CSVData();
+	std::wstring csvPath;
+
 	std::vector<CSVElement*> csvElement;
 	std::vector<std::wstring> images;
 	std::vector<CSVFont*> csvFont;
@@ -76,8 +78,6 @@ public:
 	void addcsvBarSRC(CSVElement *ele);
 
 	void Clear();
-
-	TCHAR path[256];
 	// TODO ...?
 	//std::vector<CSVElement*> getElementsByTag(TCHAR *tag);
 };

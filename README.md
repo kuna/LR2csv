@@ -115,12 +115,18 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140811
+- CSVFile filtering method now working well
+- CSVSetting save & load method implemented (not tested)
+- Automatic encode module implemented
+
+---------------------
+
 TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
-14. 타이머 콜백 함수 만들기 (play에서 ready랑 play의 rhythm timer 시작 부분에 사용할 것)
-16. CSVFile의 filtering 메서드 강화시키기
 18. irrlicht 엔진과 통합
 19. change to rhw coordinate
 20. fade in / fade out, canceling 적용.
 21. scene마다 다른 key input system 만들기
+22. skinselect implementation
 </pre>

@@ -1,6 +1,5 @@
 #pragma once
 #include "Stdafx.h"
-#include "md5.h"
 
 class BMSKeyData;	// redeclaration;
 
