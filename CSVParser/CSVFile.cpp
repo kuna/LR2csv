@@ -1,6 +1,8 @@
 ﻿#include "Stdafx.h"
 #include "CSVFile.h"
 #include "CSVSettings.h"
+#include <boost/filesystem.hpp>	// for scan
+#include <boost/algorithm/string/predicate.hpp>	// endswith
 
 TCHAR CSVFile::exePath[256];
 
@@ -38,37 +40,56 @@ bool CSVFile::GetFileList(const TCHAR *lr2Path, std::vector<std::wstring> &resAr
 	TCHAR absolutePath[256];
 	GetAbsolutePath(lr2Path, absolutePath);
 
-	// check if absolutePath is already exists ...
-	FILE *f = _wfopen(absolutePath, L"r");
-	if (f) {
-		// not directory just add one
-		fclose(f);
-		resArr.push_back(absolutePath);
-		return true;
+	// split path
+	int i;
+	for (i=0; i<wcslen(absolutePath); i++) {
+		if (absolutePath[i] == L'*')
+			break;
 	}
-	
-    WIN32_FIND_DATA fd;
-    HANDLE hFind = ::FindFirstFile(absolutePath, &fd); 
-    if(hFind != INVALID_HANDLE_VALUE) 
-    { 
-        do
-        {
-            // read all (real) files in current folder
-            // , delete '!' read other 2 default folder . and ..
-            if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) 
-            {
-				TCHAR drv[256], dir[256];
-				_wsplitpath(absolutePath, drv, dir, 0, 0);
-				wcscat(drv, dir);
-				wcscat(drv, fd.cFileName);
-                resArr.push_back(drv);
-            }
-        }while(::FindNextFile(hFind, &fd)); 
-        ::FindClose(hFind); 
+	if (i == wcslen(absolutePath)) {
+		// just return
+		if (boost::filesystem::exists(absolutePath)) {
+			resArr.push_back(absolutePath);
+		} else {
+			return false;
+		}
+	} else {
+		// split path
+		absolutePath[i] = 0;
+		std::wstring path_first = absolutePath;
+		std::wstring path_last = absolutePath+i+1;
 
-		return true;
-    } else {
-		return false;
+		// is we searching directory or file?
+		bool searchFile = false;
+		if (path_last.find(L'\\') == std::wstring::npos) {
+			searchFile = true;
+		}
+
+		// find all and add
+		boost::filesystem::path dir(path_first);
+		boost::filesystem::directory_iterator end_it;
+		if (boost::filesystem::exists(path_first)) {
+			for (boost::filesystem::directory_iterator it(dir); it!=end_it; ++it) {
+				if ((searchFile && boost::filesystem::is_regular_file(it->status())) ||
+					(!searchFile && !boost::filesystem::is_regular_file(it->status()))) {
+					std::wstring path = (*it).path().wstring();
+					if (searchFile) {
+						// check ext
+						if (!boost::algorithm::ends_with(path, path_last))
+							continue;
+					} else {
+						// add last path
+						// and check existance
+						path += path_last;
+						if (!boost::filesystem::exists(path))
+							continue;
+					}
+					resArr.push_back(path);
+				}
+			}
+		} else {
+			return false;
+		}
 	}
 }
 
