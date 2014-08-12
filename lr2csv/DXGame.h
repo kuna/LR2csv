@@ -26,6 +26,14 @@ private:
 	int countedFrame;
 	DWORD fpsTermStart;
 	VOID TickFPS();
+
+	// for fadeout
+	LPDIRECT3DTEXTURE9 pBlackTexture;
+	BOOL CreateBlackScreen();
+
+	// for rendering target
+	LPDIRECT3DSURFACE9 orgSurface;
+	LPDIRECT3DSURFACE9 newSurface;
 public:
 	LPD3DXSPRITE sprite;
 	HWND MakeWindow(TCHAR *wndName, int width, int height);
@@ -50,7 +58,11 @@ public:
 
 	IDirect3D9* GetD3D9();
 	IDirect3DDevice9* GetD3D9Device();
-
+	
+	double fadeAlpha;
+	VOID FadeInOut();
+	VOID SetRenderTarget(LPDIRECT3DTEXTURE9 pTexture);
+	VOID ResetRenderTarget();
 public:
 	Scene *currentScene;
 };

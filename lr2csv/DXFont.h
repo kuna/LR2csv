@@ -56,6 +56,7 @@ public:
 
 	BOOL InitDXFont(IDirect3DDevice9* device);
 	BOOL Release();
+	BOOL isInit();
 	DXFontTexture* getFontTexture(TCHAR chr, int *wid=0, int *hei=0);
 
 	BOOL RenderChar(TCHAR chr, bool render=true, int *width=0, int *height=0);

@@ -10,3 +10,11 @@ int CSVNumber::getNumber(int num) {
 void CSVNumber::setNumber(int num, int val) {
 	data[num] = val;
 }
+
+void CSVNumber::increaseNumber(int num) {
+	data[num]++;
+}
+
+void CSVNumber::decreaseNumber(int num) {
+	data[num]--;
+}

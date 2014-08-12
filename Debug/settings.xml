@@ -13,7 +13,10 @@
 		<file>LR2Files\Theme\20th tricoro for HD\Result\result.lr2skin</file>
 	</scene>
 	<scene name="keysetting">
-		<file></file>
+		<file>LR2Files\Theme\LR2\KeyConfig\keyconfig.lr2skin</file>
+	</scene>
+	<scene name="skinselect">
+		<file>LR2Files\Theme\LR2\SkinSelect\skinselect.lr2skin</file>
 	</scene>
 	<sound>
 		<file></file>

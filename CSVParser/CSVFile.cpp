@@ -27,6 +27,15 @@ void CSVFile::MakePathCorrect(TCHAR *jis_path) {
 	}
 }
 
+std::wstring CSVFile::GetAbsolutePath(const TCHAR *lr2Path) {
+	GetCurrentExecutionPath();		// initalization
+	TCHAR t[256];
+	wcscpy(t, exePath);
+	wcscat(t, lr2Path);
+	MakePathCorrect(t);
+	return t;
+}
+
 void CSVFile::GetAbsolutePath(const TCHAR *lr2Path, TCHAR *out) {
 	GetCurrentExecutionPath();		// initalization
 	TCHAR t[256];

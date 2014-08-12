@@ -10,7 +10,6 @@ class BMSData {
 private:
 
 public:
-	BMSData();
 	~BMSData();
 
 	int player;

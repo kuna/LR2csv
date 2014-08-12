@@ -2,6 +2,8 @@
 #include "GameManager.h"
 #include "GameSetting.h"
 #include "GameResource.h"
+#include "SceneCommon.h"
+#include "ScenePlay.h"
 
 int GameManager::GameMode;
 DXGame *GameManager::dxGame;
@@ -22,6 +24,15 @@ DXTexture images[256];
 DXFont fonts[256];
 CSVData csvData;
 CSVData csvSoundData;
+BMSData bmsData;
+
+// scene/key input
+SceneCommon sceneCommon;
+ScenePlay scenePlay;
+
+// some variables...
+int sceneTime = 0;
+
 
 // common functions
 std::string w2s(std::wstring w) {
@@ -34,16 +45,101 @@ std::wstring getPath(std::wstring w) {
 	return absolutePath;
 }
 
-void GameManager::InitGame(DXGame *dxGame_) {
-	dxGame = dxGame_;
+/*
+ *************************************
+ * Rendering Functions
+ *************************************
+ *
+ */
 
-	// init FMOD Soundsystem
-	FMOD::System_Create(&fmod_system);
-	fmod_system->init(32, FMOD_INIT_NORMAL, 0);
 
-	// open song db
-	if (sqlite3_open(w2s(getPath(L"song.db")).c_str(), &sql) == SQLITE_OK) {
-		InitSelectList();
+bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
+	// check is argument font
+	if (text == 0) {
+		if (!GameManager::getTexture(imgnum)->isTextureLoaded())
+			return false;
+	
+		// make color, rect, rotation centre
+		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
+			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
+		RECT src_rect, dst_rect;
+		int wid = src->getWidth();
+		if (wid < 0)
+			wid = GameManager::getTexture(imgnum)->width;
+		int hei = src->getHeight();
+		if (hei < 0)
+			hei = GameManager::getTexture(imgnum)->height;
+		SetRect(&src_rect, src->getX(), src->getY(), src->getX()+wid, src->getY()+hei);
+		SetRect(&dst_rect, dst->getX(), dst->getY(), dst->getX2(), dst->getY2());
+		D3DXVECTOR2 rotateCentre = D3DXVECTOR2(dst->getCenterX(), dst->getCenterY());
+		double rotation = dst->getAngle()/360.0f*2*3.14f;
+
+		// draw!
+		GameManager::dxGame->DrawTexture(GameManager::getTexture(imgnum), &src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
+	} else {
+		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
+			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
+
+		// src is only for align
+		DXFont *font = GameManager::getFont(src->getFontNum());
+		if (font && font->isInit()) {
+			GameManager::dxGame->DrawString(font, text, 
+				dst->getX(), dst->getY()-dst->getHeight()/2, dst->getWidth(), dst->getHeight(),
+				src->getTextAlign(), rgba);
+		}
+	}
+
+	return true;
+}
+
+void notedrawFunc() {
+	if (CSVTimer::isTimerActiviated(CSVTimerConst::PLAYSTART)) {
+		double speed = 1;
+		int lainHeight = 500;
+
+		// get current y pos & beat
+		double nowBeat = bmsData.getBeatFromTime(CSVTimer::getTime(CSVTimerConst::PLAYSTART));
+		auto bpmarray = BMSUtil::ExtractChannel(bmsData.bmsdata, 3);
+		int pos_y = (int) (bmsData.getNotePositionWithBPM(lainHeight, bpmarray, nowBeat) * speed);
+
+		// draw note
+		for (int i=0; i<bmsData.bmsdata.size(); i++) {
+			BMSKeyData* note = bmsData.bmsdata[i];
+			if (note->is1PChannel() && note->getAttr() == 0) {
+				int key = note->getKeyNum();
+				if (key == 8) key = 0;
+				int pos = note->getPosY(lainHeight / 100.0 * speed) - pos_y;
+				if (pos < 0) pos = 0;
+				CSVRenderer::drawNote(csvData.csvNote, key, pos);
+			}
+		}
+
+		// draw LN note
+		BMSKeyData* lnStart[20];
+		ZeroMemory(lnStart, sizeof(lnStart));
+		for (int i=0; i<bmsData.bmsdata.size(); i++) {
+			BMSKeyData* note = bmsData.bmsdata[i];
+			if (note->is1PLNChannel() && note->getAttr() == 0) {
+				int key = note->getKeyNum();
+				if (key == 8) key = 0;
+
+				if (lnStart[key]) {
+					int pos = lnStart[key]->getPosY(lainHeight / 100.0 * speed) - pos_y;
+					int pos2 = note->getPosY(lainHeight / 100.0 * speed) - pos_y;
+					if (pos < 0) pos = 0;
+					if (pos2 < 0) pos2 = 0;
+					CSVRenderer::drawLNNote(csvData.csvNote, csvData.csvLNStart,
+						csvData.csvLNBody, csvData.csvLNEnd, key, pos, pos2);
+
+					lnStart[key] = 0;
+				} else {
+					lnStart[key] = note;
+				}
+			}
+		}
+
+		// set current song progress
+		CSVSlider::setSliderValue(CSVSliderConst::SONG_PROGRESS, (double)CSVTimer::getTime(CSVTimerConst::PLAYSTART) / bmsData.time / 1000);
 	}
 }
 
@@ -59,9 +155,23 @@ void GameManager::InitGame(DXGame *dxGame_) {
    - when fadeout time started, all input are invalid.
  */
 
+// fadein / fadeout ...?
+
+void scene_end() {
+}
+
+void scene_end_prepare() {
+	// remove(disable) input device
+	sceneCommon.currentInput = 0;
+
+	// TODO give fadeout
+	// TODO another callback to scene_end after fadeout time
+}
+
 void play_end() {
 	// change scene
 	// TODO: maybe opt set is necessary for result screen...
+	// TODO: change it to scene_end
 	GameManager::loadScene(GAMEMODE::RESULT);
 }
 
@@ -69,10 +179,9 @@ void play_start() {
 	CSVTimer::setTime(CSVTimerConst::PLAYSTART);
 	CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
 
-	// TODO callback 'end' function at the end of the timer ...
-	int bmsTime = 0 + csvData.fadeOutTime;
-	// TODO: get bms time from BMSData
-	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, bmsTime, play_end);
+	// callback 'end' function at the end of the timer ...
+	sceneTime = bmsData.time*1000 + csvData.fadeOutTime;
+	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, sceneTime, play_end);
 }
 
 void load_end_callback() {
@@ -86,9 +195,6 @@ void load_end_callback() {
 }
 
 void load_start() {
-	// start load
-	// TODO
-
 	// and set callback timer
 	CSVTimer::setCallback(CSVTimerConst::MAIN, 
 		CSVTimer::getTime(CSVTimerConst::MAIN)+csvData.loadEndTime, load_end_callback);
@@ -112,6 +218,26 @@ void cancel_current_scene() {
  * class functions
  ***************************************
  */
+void GameManager::InitGame(DXGame *dxGame_) {
+	dxGame = dxGame_;
+	
+	// init FMOD Soundsystem
+	FMOD::System_Create(&fmod_system);
+	fmod_system->init(32, FMOD_INIT_NORMAL, 0);
+
+	// open song db
+	if (sqlite3_open(w2s(getPath(L"song.db")).c_str(), &sql) == SQLITE_OK) {
+		InitSelectList();
+	}
+
+	// set key input
+	dxGame->currentScene = (Scene*)&sceneCommon;
+
+	// set rendering function
+	CSVRenderer::SetdrawFunc(drawFunc);
+}
+
+
 void GameManager::LoadSounds() {
 	// load sound xml file
 	if (CSVReader::readCSVFile(L"LR2files\\Sound\\lr2.lr2ss", &csvSoundData)) {
@@ -327,10 +453,25 @@ bool GameManager::setGameMode(int mode) {
 				return false;
 			}
 
+			// load BMS
+			bmsData.dispose();
+			BMSParser::LoadBMSFile(CSVFile::GetAbsolutePath(L"LR2files\\Config\\sample_7.bme"), bmsData);
+			bmsData.convertLNOBJ();
+			bmsData.checkKey();
+			bmsData.setTimemark();
+			bmsData.fillNotePosition(bmsData.bmsdata, 100, true);
+
+			// etc ...
+			scenePlay.SetBMSData(&bmsData);
+			sceneCommon.currentInput = &scenePlay;
+			CSVRenderer::SetnotedrawFunc(notedrawFunc);
+
 			// play sound
 			//PlaySound(SOUND::);
 			break;
 		case GAMEMODE::RESULT:
+			sceneCommon.currentInput = 0;
+
 			// clear or fail?
 			CSVOption::setOption(CSVOptionConst::RESULT_CLEAR, 1);
 			CSVOption::setOption(CSVOptionConst::RESULT_FAIL, 0);
@@ -339,6 +480,8 @@ bool GameManager::setGameMode(int mode) {
 			if (!CSVReader::readCSVFile(GameSetting::scene.result, &csvData)) {
 				return false;
 			}
+			
+			CSVRenderer::SetnotedrawFunc(0);
 
 			// play sound
 			StopSound();
@@ -354,14 +497,6 @@ void GameManager::startScene() {
 
 	// set timer
 	CSVTimer::setTime(CSVTimerConst::MAIN);
-
-	switch (GameMode) {
-		case GAMEMODE::PLAY:
-			// set timer
-			//CSVTimer::setTime(CSVTimerConst::READY);
-			//CSVTimer::setTime(CSVTimerConst::PLAYSTART, 1000);
-			break;
-	}
 }
 
 bool GameManager::loadScene(int mode) {
@@ -374,20 +509,41 @@ bool GameManager::loadScene(int mode) {
 			return false;
 		}
 
+		// set scene time
+		sceneTime = csvData.sceneTime;
+
 		LoadSkinResource(dxGame);
 	}
 
 	// game just begun!
 	GameManager::startScene();
-	//CSVRenderer::SetnotedrawFunc(0);	// <- need to implement
 
-	// need to implement event
+	// need to implement event changing...?
 	return true;
 }
 
+double GameManager::getFadeAlpha() {
+	if (!csvData.sceneTime)
+		return 0;
+
+	int curTime = CSVTimer::getTime(CSVTimerConst::MAIN);
+	if (csvData.fadeInTime > curTime) {
+		double a = (double)curTime/csvData.fadeInTime;
+		return 1-a;
+	}
+	if (csvData.fadeOutTime > sceneTime-curTime) {
+		double a = (double)(sceneTime-curTime) / csvData.fadeOutTime;
+		if (a<0)
+			return 0;
+		else
+			return a;
+	}
+	return 0;
+}
+
 void GameManager::LoadSkinResource(DXGame *dxGame) {
+	// load image
 	for (int i=0; i<csvData.images.size(); i++) {
-		// TODO: *.* name should be preprocessed
 		TCHAR absolutePath[256];
 		if (CSVFile::GetPathFromSettings(csvData.images[i].c_str(), absolutePath)) {
 			if (!images[i].LoadTexture(absolutePath, dxGame->GetD3D9Device(), 

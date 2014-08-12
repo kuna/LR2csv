@@ -83,6 +83,10 @@ BOOL DXFont::getAvailableGlyphSlot(DXFontTexture *data) {
 	return TRUE;
 }
 
+BOOL DXFont::isInit() {
+	return ftLib>0;
+}
+
 BOOL DXFont::Release() {
 	if (ftLib) {
 		if (ftStroker) {

@@ -5,6 +5,8 @@ struct SceneSetting {
 	TCHAR play[256];
 	TCHAR decide[256];
 	TCHAR result[256];
+	TCHAR keysetting[256];
+	TCHAR skinselect[256];
 };
 
 struct ScreenSetting {

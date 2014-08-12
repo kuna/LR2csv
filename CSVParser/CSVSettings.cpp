@@ -31,7 +31,7 @@ bool CSVSettings::LoadSettings(CSVData *csvData) {
 	CSVFile::GetAbsolutePath(L"LR2Files\\SkinSettings\\", fldPath);
 	boost::filesystem::create_directories(fldPath);
 	std::wstring fpath = fldPath +
-		md5::GetHash((const char*)csv->csvPath.c_str(), csv->csvPath.length()*2);
+		md5::GetHash((const char*)csv->csvPath.c_str(), csv->csvPath.length()*2) + L".xml";
 
 	// load settings from xml file
 	CMarkup xml;
@@ -79,7 +79,7 @@ bool CSVSettings::SaveSettings() {
 
 	// and make absolute path (md5 hash)
 	std::wstring fpath = fldPath +
-		md5::GetHash((const char*)csv->csvPath.c_str(), csv->csvPath.length()*2);
+		md5::GetHash((const char*)csv->csvPath.c_str(), csv->csvPath.length()*2) + L".xml";
 
 	// save to xml file
 	CMarkup xml;

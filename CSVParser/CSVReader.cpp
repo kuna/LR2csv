@@ -4,6 +4,7 @@
 #include "CSVFile.h"
 #include "CSVButton.h"
 #include "CSVSlider.h"
+#include "CSVSettings.h"
 
 // statics
 int CSVReader::CSVTYPE_IMAGE = CSVElement::getTypeInt(L"IMAGE");
@@ -295,7 +296,8 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			int idx = _wtoi(args[1]);
 			currentCSV->csvFont[idx]->SetData(args);
 		} else if (wcscmp(args[0], L"#ENDOFHEADER") == 0) {
-			// ...?
+			// MUST read csv setting
+			CSVSettings::LoadSettings(currentCSV);
 		} else if (wcscmp(args[0], L"#SCRATCHSIDE") == 0) {
 		} else if (wcscmp(args[0], L"#TRANSCOLOR") == 0) {
 			// set transcolor
@@ -317,7 +319,8 @@ void CSVReader::processCSVLine(TCHAR *data) {
 		} else if (wcscmp(args[0], L"#CLOSE") == 0) {
 		} else if (wcscmp(args[0], L"#CUSTOMOPTION") == 0) {
 			// TODO: need to implement #CUSTOMOPTION with CSVData
-			CSVCustomOption *csvOption = new CSVCustomOption();
+			CSVCustomOption *csvOption = (CSVCustomOption*)malloc(sizeof(CSVCustomOption));
+			ZeroMemory(csvOption, sizeof(CSVCustomOption));
 			csvOption->optName = args[1];
 			csvOption->optType = _wtoi(args[2]);
 			csvOption->optNum = 0;
@@ -328,12 +331,16 @@ void CSVReader::processCSVLine(TCHAR *data) {
 				csvOption->optValues.push_back(args[idx]);
 				idx++;
 			}
+			
+			currentCSV->csvOptions.push_back(csvOption);
 		} else if (wcscmp(args[0], L"#CUSTOMFILE") == 0) {
 			// custom file path.
-			CSVCustomOption *csvOption = new CSVCustomOption();
+			CSVCustomOption *csvOption = (CSVCustomOption*)malloc(sizeof(CSVCustomOption));
+			ZeroMemory(csvOption, sizeof(CSVCustomOption));
 			csvOption->optName = args[1];
 			csvOption->optPath = args[2];
-			csvOption->optValue = args[3];
+			if (args[3])
+				csvOption->optValue = args[3];
 			
 			currentCSV->csvOptions.push_back(csvOption);
 		} else if (wcscmp(args[0], L"#INCLUDE") == 0) {

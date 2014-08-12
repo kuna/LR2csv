@@ -38,6 +38,16 @@ void GameSetting::LoadSetting() {
 				xml.FindElem();
 				wcscpy(scene.result, xml.GetData().c_str());
 				xml.OutOfElem();
+			} else if (xml.GetAttrib(L"name").compare(L"keysetting") == 0) {
+				xml.IntoElem();
+				xml.FindElem();
+				wcscpy(scene.keysetting, xml.GetData().c_str());
+				xml.OutOfElem();
+			} else if (xml.GetAttrib(L"name").compare(L"skinselect") == 0) {
+				xml.IntoElem();
+				xml.FindElem();
+				wcscpy(scene.skinselect, xml.GetData().c_str());
+				xml.OutOfElem();
 			}
 		}
 

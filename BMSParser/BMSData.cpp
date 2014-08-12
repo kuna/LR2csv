@@ -118,7 +118,7 @@ double BMSData::getNotePositionWithBPM(int beatHeight, const std::vector<BMSKeyD
 	int beatNum = 0;
 	double beatDecimal = 0;
 	double r = 0;
-	for (int bpmidx; bpmidx<bpmarr.size(); bpmidx++) {
+	for (int bpmidx=0; bpmidx<bpmarr.size(); bpmidx++) {
 		BMSKeyData *bpm = bpmarr[bpmidx];
 
 		while (beatNum < (int)bpm->getBeat() && beatNum < beat) {

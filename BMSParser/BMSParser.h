@@ -34,13 +34,13 @@ private:
 	static std::wstring getBMSData(std::wstring &line, std::wstring spliter);
 	static int checkBMSCommand(std::wstring &line);
 public:
-	static bool LoadBMSFile(std::wstring path, BMSData bd);
-	static bool LoadBMSFile(BYTE *data, BMSData bd);
+	static bool LoadBMSFile(const std::wstring &path, BMSData &bd);
+	static bool LoadBMSFile(BYTE *data, BMSData &bd);
 	static bool ReadBMSFile(const TCHAR *path, BYTE **out);
-	static bool ParseBMSData(std::wstring& data, BMSData bd);
-	static void ExecutePreProcessor(BMSData bd);
-	static void PreProcessBMSLine(std::wstring& line, BMSData bd);
-	static void ProcessBMSLine(std::wstring& line, BMSData bd);
+	static bool ParseBMSData(std::wstring& data, BMSData &bd);
+	static void ExecutePreProcessor(BMSData &bd);
+	static void PreProcessBMSLine(std::wstring& line, BMSData &bd);
+	static void ProcessBMSLine(std::wstring& line, BMSData &bd);
 	
 	// setTimemark has migrated into BMSData...
 	// MUST USE AFTER PARSING & SORTING!

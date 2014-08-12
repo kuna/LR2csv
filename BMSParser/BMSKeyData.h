@@ -252,7 +252,7 @@ public:
 		else if (rk == 9)
 			return 7;
 		else if (rk == 6)
-			return 8;	// scratch
+			return 0;	// scratch
 		else
 			return rk;
 	}

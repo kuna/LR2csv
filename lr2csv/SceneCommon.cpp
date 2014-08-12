@@ -7,24 +7,17 @@ void SceneCommon::OnKeyDown(int key) {
 		// refresh
 	}
 
-	if (key == 'Z') {
-		// timer
-		CSVTimer::deActiviateTimer(CSVTimerConst::KEYOFF_TIMER);
-		CSVTimer::setTime(CSVTimerConst::KEYDOWN_TIMER);
-	} else if (key == VK_UP) {
+	if (key == VK_UP) {
 		CSVSelectList::MoveUp();
 	} else if (key == VK_DOWN) {
 		CSVSelectList::MoveDown();
 	}
+
+	if (currentInput)
+		currentInput->OnKeyDown(key);
 }
 
 void SceneCommon::OnKeyUp(int key) {
-	if (key == 'Z') {
-		// key input test
-		CSVTimer::deActiviateTimer(CSVTimerConst::KEYDOWN_TIMER);
-		CSVTimer::setTime(CSVTimerConst::KEYOFF_TIMER);
-		CSVTimer::setTime(CSVTimerConst::BOMB_TIMER);
-	}
 	if (key == 'Q') {
 		// combo test
 		CSVTimer::setTime(CSVTimerConst::JUDGE_1P);
@@ -63,23 +56,36 @@ void SceneCommon::OnKeyUp(int key) {
 		GameManager::setGameMode(GameManager::GameMode);
 		GameManager::startScene();
 	}
+
+	if (currentInput)
+		currentInput->OnKeyUp(key);
 }
 
 void SceneCommon::OnLButtonDown(int x, int y) {
 	CSVButton::Click(x, y);
 	CSVSlider::mouseDown(x, y);
+
+	if (currentInput)
+		currentInput->OnLButtonDown(x, y);
 }
 
 void SceneCommon::OnLButtonUp(int x, int y) {
 	CSVSlider::mouseUp();
+	
+	if (currentInput)
+		currentInput->OnLButtonUp(x, y);
 }
 
 void SceneCommon::OnRButtonDown(int x, int y) {
 	// cancel event
 	// like shutter close, parent folder, cancel song.
+	if (currentInput)
+		currentInput->OnRButtonDown(x, y);
 }
 
 void SceneCommon::OnRButtonUp(int x, int y) {
+	if (currentInput)
+		currentInput->OnRButtonUp(x, y);
 }
 
 void SceneCommon::OnMouseMove(int x, int y) {
@@ -87,6 +93,9 @@ void SceneCommon::OnMouseMove(int x, int y) {
 	if (CSVSlider::mouseMove(x, y) == CSVSliderConst::SELECT_SLIDER) {
 		CSVSelectList::checkSlider();
 	}
+	
+	if (currentInput)
+		currentInput->OnMouseMove(x, y);
 }
 
 void SceneCommon::OnMouseWheel(int wheel) {
@@ -95,4 +104,7 @@ void SceneCommon::OnMouseWheel(int wheel) {
 	} else if (wheel < 0) {
 		CSVSelectList::MoveDown();
 	}
+	
+	if (currentInput)
+		currentInput->OnMouseWheel(wheel);
 }

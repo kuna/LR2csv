@@ -105,6 +105,9 @@ BOOL DXGame::Initalize(HWND hWnd) {
 	// refer to http://skmagic.tistory.com/entry/ID3DXSprite-Interface-LPD3DXSPRITE-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0
 	CreateSprite(&sprite);
 
+	// create black screen
+	CreateBlackScreen();
+
 	return TRUE;
 }
 
@@ -116,6 +119,43 @@ VOID DXGame::ChangeMode(BOOL fullscreen) {
 BOOL DXGame::CreateSprite(LPD3DXSPRITE *sprite) {
 	D3DXCreateSprite(pd3dDevice, sprite);
 	return TRUE;
+}
+
+BOOL DXGame::CreateBlackScreen() {
+	if (FAILED(D3DXCreateTexture(pd3dDevice, screenWidth, screenHeight, 1, 0, 
+		D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pBlackTexture))) {
+		return FALSE;
+	}
+
+	// fill tex
+	D3DLOCKED_RECT lRect;
+	pBlackTexture->LockRect(0, &lRect, 0, 0);
+	D3DCOLOR* data = (D3DCOLOR*)lRect.pBits;
+	for (int i=0; i<screenWidth*screenHeight; i++) {
+		data[i] = D3DCOLOR_XRGB(0,0,0);
+	}
+	pBlackTexture->UnlockRect(0);
+
+	return TRUE;
+}
+
+VOID DXGame::SetRenderTarget(LPDIRECT3DTEXTURE9 pTexture) {
+	if (!newSurface) {
+		if (pTexture->GetSurfaceLevel(0, &newSurface) == S_OK) {
+			pd3dDevice->GetRenderTarget(0, &orgSurface);
+			pd3dDevice->SetRenderTarget(0, newSurface);
+		}
+	}
+}
+
+VOID DXGame::ResetRenderTarget() {
+	if (orgSurface) {
+		pd3dDevice->GetRenderTarget(0, &newSurface);
+		pd3dDevice->SetRenderTarget(0, orgSurface);
+		orgSurface = 0;
+		newSurface->Release();
+		newSurface = 0;
+	}
 }
 
 BOOL DXGame::CreateFont(LPD3DXFONT *font, TCHAR *name, int height, int width) {
@@ -162,6 +202,12 @@ BOOL DXGame::LoadTexture(const TCHAR *path, LPDIRECT3DTEXTURE9 *pTexture) {
 }
 
 BOOL DXGame::Release() {
+	// check black fadeout
+	if (pBlackTexture) {
+		pBlackTexture->Release();
+		pBlackTexture = 0;
+	}
+	
 	pd3dDevice->Release();
 	pd3d9->Release();
 
@@ -185,6 +231,21 @@ VOID DXGame::EndScene() {
 
 		// for FPS measuring
 		TickFPS();
+	}
+}
+
+VOID DXGame::FadeInOut() {
+	if (fadeAlpha) {
+		// MUST use when drawing scene
+		// ALPHA BLENDING
+		pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+		pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		sprite->Draw(pBlackTexture, 0, 0, 0, D3DCOLOR_ARGB((int)(fadeAlpha*255), 255, 255, 255));
+		//pd3dDevice->SetStreamSource(0, pVB, 0, sizeof(VERT));
+		//pd3dDevice->drawprim
 	}
 }
 

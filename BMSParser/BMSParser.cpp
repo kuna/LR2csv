@@ -20,7 +20,7 @@ int BMSParser::randomStackCnt;
 int BMSParser::randomVal[256];		// Maximum stack: 256
 int BMSParser::condition[256];
 
-bool BMSParser::LoadBMSFile(std::wstring path, BMSData bd) {
+bool BMSParser::LoadBMSFile(const std::wstring &path, BMSData &bd) {
 	BMSUtil::Log(L"BMSParser", L"Loading BMS File ... " + path);
 
 	BYTE *data = 0;
@@ -34,7 +34,7 @@ bool BMSParser::LoadBMSFile(std::wstring path, BMSData bd) {
 	return r;
 }
 
-bool BMSParser::LoadBMSFile(BYTE *data, BMSData bd) {
+bool BMSParser::LoadBMSFile(BYTE *data, BMSData &bd) {
 	// check encoding
 	std::wstring wstr;
 	AutoEncoder::convertEncodingAuto((const char*)data, wstr);
@@ -66,7 +66,7 @@ bool BMSParser::ReadBMSFile(const TCHAR *path, BYTE **out) {
 	return true;
 }
 
-bool BMSParser::ParseBMSData(std::wstring &data, BMSData bd) {
+bool BMSParser::ParseBMSData(std::wstring &data, BMSData &bd) {
 	// init
 	memset(BGALayerCount, 0, sizeof(BGALayerCount));
 		
@@ -153,7 +153,7 @@ bool BMSParser::ParseBMSData(std::wstring &data, BMSData bd) {
 	return true;
 }
 
-void BMSParser::ExecutePreProcessor(BMSData bd) {
+void BMSParser::ExecutePreProcessor(BMSData &bd) {
 	// this will modify BMSData
 	// TODO check this thing may executed later
 		
@@ -233,7 +233,7 @@ int BMSParser::checkBMSCommand(std::wstring &line) {
 	}
 }
 
-void BMSParser::PreProcessBMSLine(std::wstring &line, BMSData bd) {
+void BMSParser::PreProcessBMSLine(std::wstring &line, BMSData &bd) {
 	// in this function, Metadata & midi length will parsed
 	// and preprocessor will be parsed
 	std::wstring line_up = line;
@@ -304,19 +304,19 @@ void BMSParser::PreProcessBMSLine(std::wstring &line, BMSData bd) {
 				bd.LNObj[BMSUtil::ExtHexToInt(data)] = true;
 			} else
 			if (boost::starts_with(cmd, L"#BMP")) {
-				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 6));
+				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 2));
 				bd.str_bg[index] = data;
 			} else
 			if (boost::starts_with(cmd, L"#WAV")) {
-				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 6));
+				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 2));
 				bd.str_wav[index] = data;
 			} else
 			if (boost::starts_with(cmd, L"#BPM")) {
-				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 6));
+				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 2));
 				bd.str_bpm[index] = _wtof(data.c_str());
 			} else
 			if (boost::starts_with(cmd, L"#STOP")) {
-				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 6));
+				int index = BMSUtil::ExtHexToInt(cmd.substr(4, 2));
 				bd.str_stop[index] = _wtof(data.c_str());
 			}
 		}
@@ -325,9 +325,9 @@ void BMSParser::PreProcessBMSLine(std::wstring &line, BMSData bd) {
 			std::wstring cmd = getBMSCommand(line, L":");
 			std::wstring data = getBMSData(line, L":");
 
-			if (!BMSUtil::IsInteger(cmd.substr(1, 6))) return;
-			int beat = _wtoi(cmd.substr(1, 4).c_str());
-			int channel = BMSUtil::HexToInt(cmd.substr(4, 6));	// channel is heximedical
+			if (!BMSUtil::IsInteger(cmd.substr(1, 5))) return;
+			int beat = _wtoi(cmd.substr(1, 3).c_str());
+			int channel = BMSUtil::HexToInt(cmd.substr(4, 2));	// channel is heximedical
 				
 			if (channel == 2) {
 				double length_beat = _wtof(data.c_str());
@@ -356,7 +356,7 @@ void BMSParser::PreProcessBMSLine(std::wstring &line, BMSData bd) {
 	}
 }
 
-void BMSParser::ProcessBMSLine(std::wstring &line, BMSData bd) {
+void BMSParser::ProcessBMSLine(std::wstring &line, BMSData &bd) {
 	/*
 		* many BMS has not follow this rule,
 		* so we're going to ignore it.
@@ -380,9 +380,9 @@ void BMSParser::ProcessBMSLine(std::wstring &line, BMSData bd) {
 	std::wstring cmd = getBMSCommand(line, L":");
 	std::wstring data = getBMSData(line, L":");
 	if (cmd.size() > 0) {
-		if (!BMSUtil::IsInteger(cmd.substr(1, 6))) return;
-		int beat = _wtoi(cmd.substr(1, 4).c_str());
-		int channel = BMSUtil::HexToInt(cmd.substr(4, 6));	// channel is heximedical
+		if (!BMSUtil::IsInteger(cmd.substr(1, 5))) return;
+		int beat = _wtoi(cmd.substr(1, 3).c_str());
+		int channel = BMSUtil::HexToInt(cmd.substr(4, 2));	// channel is heximedical
 			
 		if (channel == 2) {
 			// ignore! we already did it in PreProcessBMSLine
@@ -394,7 +394,7 @@ void BMSParser::ProcessBMSLine(std::wstring &line, BMSData bd) {
 				
 			int ncb = data.length();
 			for (int i=0; i<ncb/2; i++) {
-				std::wstring val_str = data.substr(i*2, i*2+2);
+				std::wstring val_str = data.substr(i*2, 2);
 				int val = BMSUtil::ExtHexToInt(val_str);
 				if (val == 0) {
 					// ignore data 00

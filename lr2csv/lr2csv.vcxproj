@@ -87,6 +87,7 @@
     <ClCompile Include="GameSetting.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SceneCommon.cpp" />
+    <ClCompile Include="ScenePlay.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -100,6 +101,7 @@
     <ClInclude Include="GameSetting.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneCommon.h" />
+    <ClInclude Include="ScenePlay.h" />
     <ClInclude Include="Stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

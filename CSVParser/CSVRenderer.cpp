@@ -334,9 +334,20 @@ void CSVRenderer::drawElement(CSVElement *csvElement) {
 		CSVSRC src_nowjudge;
 		CSVDST dst_nowjudge, dst_nowcombo;
 
-		int judge = 5;
-
-		// TODO: set judge case
+		// set judge case
+		int judge = 0;
+		if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_PGREAT))
+			judge = 5;
+		else if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_GREAT))
+			judge = 4;
+		else if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_GOOD))
+			judge = 3;
+		else if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_BAD))
+			judge = 2;
+		else if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_POOR))
+			judge = 1;
+		else if (CSVOption::getOption(CSVOptionConst::PLAY_1P_JUDGE_EMPTYPOOR))
+			judge = 0;
 		csvElement->srcNum = csvElement->dstNum = judge;
 
 		csvElement->getSRC(&src_nowjudge);
@@ -348,7 +359,9 @@ void CSVRenderer::drawElement(CSVElement *csvElement) {
 
 			int width = 0;
 			bool comboDrawable = false;
-			int combo = 123;	// TODO: set combo
+
+			// set combo
+			int combo = CSVNumber::getNumber(CSVNumConst::PLAYER_COMBO);
 
 			if (csvCombo->getDST(&dst_nowcombo)) {
 				comboDrawable = true;

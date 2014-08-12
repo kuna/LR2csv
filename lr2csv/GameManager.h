@@ -6,15 +6,16 @@
 
 class GameManager {
 private:
-	static DXGame *dxGame;
 
 public:
+	static DXGame *dxGame;
 	static int GameMode;
 public:
 	static void InitGame(DXGame *dxGame);
 	static bool setGameMode(int mode);
 	static void startScene();
 	static bool loadScene(int mode);
+	static double getFadeAlpha();
 
 	static void LoadSkinResource(DXGame *dxGame);
 	static void ReleaseSkinResource();

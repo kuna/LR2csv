@@ -31,60 +31,6 @@ CrtBreakAllocSetter g_crtBreakAllocSetter;
 HWND hWnd;
 DXGame dxGame;
 
-// key input
-SceneCommon sceneCommon;
-
-bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
-	// check is argument font
-	if (text == 0) {
-		if (!GameManager::getTexture(imgnum)->isTextureLoaded())
-			return false;
-	
-		// make color, rect, rotation centre
-		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
-			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
-		RECT src_rect, dst_rect;
-		int wid = src->getWidth();
-		if (wid < 0)
-			wid = GameManager::getTexture(imgnum)->width;
-		int hei = src->getHeight();
-		if (hei < 0)
-			hei = GameManager::getTexture(imgnum)->height;
-		SetRect(&src_rect, src->getX(), src->getY(), src->getX()+wid, src->getY()+hei);
-		SetRect(&dst_rect, dst->getX(), dst->getY(), dst->getX2(), dst->getY2());
-		D3DXVECTOR2 rotateCentre = D3DXVECTOR2(dst->getCenterX(), dst->getCenterY());
-		double rotation = dst->getAngle()/360.0f*2*3.14f;
-
-		// draw!
-		dxGame.DrawTexture(GameManager::getTexture(imgnum), &src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
-	} else {
-		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
-			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
-
-		// src is only for align
-		DXFont *font = GameManager::getFont(src->getFontNum());
-		if (font && font->fontData) {
-			dxGame.DrawString(font, text, 
-				dst->getX(), dst->getY()-dst->getHeight()/2, dst->getWidth(), dst->getHeight(),
-				src->getTextAlign(), rgba);
-		}
-	}
-
-	return true;
-}
-
-void notedrawFunc() {
-	/*
-	CSVRenderer::drawLine(csvData.csvLine, 80);
-	CSVRenderer::drawNote(csvData.csvNote, 0, 100);
-	CSVRenderer::drawNote(csvData.csvNote, 2, 100);
-	CSVRenderer::drawNote(csvData.csvNote, 3, 100);
-	CSVRenderer::drawNote(csvData.csvNote, 4, 100);
-	CSVRenderer::drawLNNote(csvData.csvNote, csvData.csvLNStart,
-		csvData.csvLNBody, csvData.csvLNEnd, 5, 60, 120);
-		*/
-}
-
 VOID Render() {
 	// update time per each frame
 	CSVTimer::invalidateTime();
@@ -97,6 +43,10 @@ VOID Render() {
 	// draw sprites
 	dxGame.BeginSprite();
 	CSVRenderer::drawAll(GameManager::getCSVData());
+
+	// fadein/out
+	dxGame.fadeAlpha = GameManager::getFadeAlpha();
+	dxGame.FadeInOut();
 	dxGame.EndSprite();
 
 	/*TCHAR msg[30];
@@ -129,16 +79,12 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
     UpdateWindow( hWnd );
 
 	// init
-	CSVRenderer::SetdrawFunc(drawFunc);
-	GameManager::InitGame(&dxGame);
 	CSVOption::InitOption();
+	GameManager::InitGame(&dxGame);
 	GameManager::LoadSounds();
 
 	GameManager::loadScene(GAMEMODE::SELECT);
 	GameManager::startScene();
-
-	// set key input
-	dxGame.currentScene = (Scene*)&sceneCommon;
 
     // Enter the message loop
 	// TODO: include it in DXGame ...?

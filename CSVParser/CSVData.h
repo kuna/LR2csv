@@ -20,10 +20,11 @@ public:
 	CSVElement *csvBar;				// for select screen
 	int barCenter;					// basic is 0
 	CSVTransColor colorKey;			// basic is 0
-	int sceneTime;
 	int loadStartTime;
 	int loadEndTime;
 	int playStartTime;
+	int sceneTime;
+	int fadeInTime;
 	int fadeOutTime;
 	int skipTime;
 

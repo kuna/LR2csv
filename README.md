@@ -122,6 +122,20 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140812
+- fadein/out implemented
+- rendertarget changing works - implementation of skin setting is available.
+- different key input & environment system with each scene
+
+---------------------
+
+140813
+- now BMS playable (just sample...)
+- fade in/out implemented for every scene.
+- different key event for each scene implemented.
+- sample movie uploaded.
+
+
 TODO
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 18. irrlicht 엔진과 통합
@@ -129,4 +143,5 @@ TODO
 20. fade in / fade out, canceling 적용.
 21. scene마다 다른 key input system 만들기
 22. skinselect implementation
+23. directinput
 </pre>
