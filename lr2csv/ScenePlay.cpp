@@ -20,6 +20,20 @@ void ScenePlay::OnKeyUp(int key) {
 			LaneUp(i);
 		}
 	}
+
+	
+	if (key == 'Q') {
+		// combo test
+		CSVTimer::setTime(CSVTimerConst::JUDGE_1P);
+	}
+	if (key == 'W') {
+		// fullcombo test
+		CSVTimer::setTime(CSVTimerConst::FULLCOMBO_1P);
+	}
+	if (key == 'R') {
+		// rhythm timer test
+		CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
+	}
 }
 
 void ScenePlay::OnLButtonDown(int x, int y) {

@@ -313,6 +313,8 @@ void CSVReader::processCSVLine(TCHAR *data) {
 			currentCSV->sceneTime = _wtoi(args[1]);
 		} else if (wcscmp(args[0], L"#PLAYSTART") == 0) {
 			currentCSV->playStartTime = _wtoi(args[1]);
+		} else if (wcscmp(args[0], L"#STARTINPUT") == 0) {
+			currentCSV->inputStartTime = _wtoi(args[1]);
 		} else if (wcscmp(args[0], L"#FADEOUT") == 0) {
 			currentCSV->fadeOutTime = _wtoi(args[1]);
 		} else if (wcscmp(args[0], L"#SKIP") == 0) {

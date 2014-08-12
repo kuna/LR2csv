@@ -1,9 +1,9 @@
 #pragma once
+#include "Stdafx.h"
 #include "CSVElement.h"
 #include "CSVdrawarg.h"
 #include "CSVFont.h"
 #include "CSVSettings.h"
-#include "Stdafx.h"
 
 struct CSVTransColor {
 	BYTE r, g, b;
@@ -26,6 +26,7 @@ public:
 	int sceneTime;
 	int fadeInTime;
 	int fadeOutTime;
+	int inputStartTime;
 	int skipTime;
 
 	/* under - not for CSV data, but for rendering */

@@ -3,42 +3,11 @@
 #include "GameManager.h"
 
 void SceneCommon::OnKeyDown(int key) {
-	if (key == VK_F5) {
-		// refresh
-	}
-
-	if (key == VK_UP) {
-		CSVSelectList::MoveUp();
-	} else if (key == VK_DOWN) {
-		CSVSelectList::MoveDown();
-	}
-
 	if (currentInput)
 		currentInput->OnKeyDown(key);
 }
 
 void SceneCommon::OnKeyUp(int key) {
-	if (key == 'Q') {
-		// combo test
-		CSVTimer::setTime(CSVTimerConst::JUDGE_1P);
-	}
-	if (key == 'W') {
-		// fullcombo test
-		CSVTimer::setTime(CSVTimerConst::FULLCOMBO_1P);
-	}
-	if (key == 'R') {
-		// rhythm timer test
-		CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
-	}
-
-	if (key == VK_RIGHT) {
-		// select
-		GameManager::SelectList();
-	} else if (key == VK_LEFT) {
-		// TODO: go to previous one
-		CSVSelectList::goPrevList();
-	}
-	
 	if (key == VK_F1) {
 		GameManager::loadScene(GAMEMODE::SELECT);
 		GameManager::startScene();

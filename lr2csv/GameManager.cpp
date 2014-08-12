@@ -4,6 +4,9 @@
 #include "GameResource.h"
 #include "SceneCommon.h"
 #include "ScenePlay.h"
+#include "SceneSelect.h"
+#include "SceneDecide.h"
+#include "SceneResult.h"
 
 int GameManager::GameMode;
 DXGame *GameManager::dxGame;
@@ -29,9 +32,9 @@ BMSData bmsData;
 // scene/key input
 SceneCommon sceneCommon;
 ScenePlay scenePlay;
-
-// some variables...
-int sceneTime = 0;
+SceneDecide sceneDecide;
+SceneSelect sceneSelect;
+SceneResult sceneResult;
 
 
 // common functions
@@ -156,23 +159,36 @@ void notedrawFunc() {
  */
 
 // fadein / fadeout ...?
-
+int fadingStartTime = 0;
 void scene_end() {
+	// move to another scene
+	switch (GameManager::GameMode) {
+	case GAMEMODE::SELECT:
+		GameManager::loadScene(GAMEMODE::DECIDE);
+		break;
+	case GAMEMODE::DECIDE:
+		GameManager::loadScene(GAMEMODE::PLAY);
+		break;
+	case GAMEMODE::PLAY:
+		GameManager::loadScene(GAMEMODE::RESULT);
+		break;
+	case GAMEMODE::RESULT:
+		GameManager::loadScene(GAMEMODE::SELECT);
+		break;
+	}
+
+	// restore fading time
+	fadingStartTime = 0;
 }
 
 void scene_end_prepare() {
 	// remove(disable) input device
 	sceneCommon.currentInput = 0;
 
-	// TODO give fadeout
-	// TODO another callback to scene_end after fadeout time
-}
-
-void play_end() {
-	// change scene
-	// TODO: maybe opt set is necessary for result screen...
-	// TODO: change it to scene_end
-	GameManager::loadScene(GAMEMODE::RESULT);
+	// give fadeout
+	fadingStartTime = CSVTimer::getTime(CSVTimerConst::MAIN);
+	// another callback to scene_end after fadeout time
+	CSVTimer::setCallback(CSVTimerConst::MAIN, fadingStartTime+csvData.fadeOutTime, scene_end);
 }
 
 void play_start() {
@@ -180,8 +196,8 @@ void play_start() {
 	CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
 
 	// callback 'end' function at the end of the timer ...
-	sceneTime = bmsData.time*1000 + csvData.fadeOutTime;
-	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, sceneTime, play_end);
+	sceneTime = bmsData.time*1000 + csvData.fadeOutTime + 2000;	// TODO: 2000 is okay?
+	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, sceneTime, scene_end_prepare);
 }
 
 void load_end_callback() {
@@ -531,10 +547,10 @@ double GameManager::getFadeAlpha() {
 		double a = (double)curTime/csvData.fadeInTime;
 		return 1-a;
 	}
-	if (csvData.fadeOutTime > sceneTime-curTime) {
-		double a = (double)(sceneTime-curTime) / csvData.fadeOutTime;
-		if (a<0)
-			return 0;
+	if (fadingStartTime) {
+		double a = (double)(curTime-fadingStartTime) / csvData.fadeOutTime;
+		if (a>1)
+			return 1;
 		else
 			return a;
 	}

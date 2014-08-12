@@ -133,7 +133,15 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 - now BMS playable (just sample...)
 - fade in/out implemented for every scene.
 - different key event for each scene implemented.
+- add CSVEventHandler module (setscenestart, setinputstart, setfadeinstart, ~end, setfadeoutstart, setfadeoutend, setsceneend ...)
+
+---------------------
+
+140814
 - sample movie uploaded.
+- more detail result/playing screen & dst/timing events.
+
+---------------------
 
 
 TODO

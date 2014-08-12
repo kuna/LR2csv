@@ -65,7 +65,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	GameSetting::LoadSetting();
 
 	// create window
-	hWnd = dxGame.MakeWindow(L"LR2csv Alpha 140728", 
+	hWnd = dxGame.MakeWindow(L"LR2csv Alpha 140812", 
 		GameSetting::screen.width, GameSetting::screen.height);
 
 	// init device
