@@ -11,6 +11,8 @@ public:
 	void OnRButtonUp(int x, int y);
 	void OnMouseMove(int x, int y);
 	void OnMouseWheel(int delta);
+	void InitalizeScene();
+	void InvalidateScene();
 
 	void Init();
 	bool getIsCanceled();

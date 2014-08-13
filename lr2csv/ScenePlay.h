@@ -25,11 +25,18 @@ class ScenePlay: public Scene {
 private:
 	BMSData *bmsData;
 	int combo;
+	int leftnote;
+	double targetRate;
+	double shutterHeight;
+	int exScore;
 	
 	BMSKeyData* getLastValidKey(int num=-1);	// TODO: insert it into BMSData
 	int checkJudge(int diffTime);
 	int GetJudgeTime(int judge, int judgetime);
 	void processJudge(int judge);
+	void setDSTOption();
+
+	void fillGuage(int num);	// TODO: change it to double
 public:
 	// redeclaration
 	void OnKeyDown(int key);
@@ -40,10 +47,11 @@ public:
 	void OnRButtonUp(int x, int y);
 	void OnMouseMove(int x, int y);
 	void OnMouseWheel(int delta);
+	void InvalidateScene();
+	void InitalizeScene();
 
 	// customize
 	void LanePress(int num);
 	void LaneUp(int num);
 	void SetBMSData(BMSData *bmsData);
-	void InitalizeCSV();
 };

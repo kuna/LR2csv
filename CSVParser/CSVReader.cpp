@@ -51,6 +51,9 @@ std::vector<TCHAR*> CSVReader::recycled;	// used after parsing all datas (releas
 CSVElement* CSVReader::prev_element[CACHESIZE];
 
 bool CSVReader::readCSVFile(TCHAR *path, CSVData *csvData) {
+	// clear csvdata first
+	csvData->Clear();
+
 	// init
 	lines.clear();
 	for (int i=0; i<CACHESIZE; i++) {

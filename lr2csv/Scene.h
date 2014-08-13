@@ -10,4 +10,6 @@ public:
 	virtual void OnMouseWheel(int) = 0;
 	virtual void OnKeyDown(int) = 0;
 	virtual void OnKeyUp(int) = 0;
+	virtual void InvalidateScene() = 0;
+	virtual void InitalizeScene() = 0;
 };

@@ -10,8 +10,8 @@ void SceneDecide::OnKeyDown(int key) {
 		isCanceled = false;
 	}
 	
-	// TODO: call endScene
-	//GameManager::getCSVData()->
+	// call endScene
+	GameManager::getCSVHandler()->endScene();
 }
 
 void SceneDecide::OnKeyUp(int key) {
@@ -37,10 +37,13 @@ void SceneDecide::OnMouseMove(int x, int y) {
 void SceneDecide::OnMouseWheel(int delta) {
 }
 
-
-void SceneDecide::Init() {
+void SceneDecide::InitalizeScene() {
 	isCanceled = false;
 }
+
+void SceneDecide::InvalidateScene() {
+}
+
 
 bool SceneDecide::getIsCanceled() {
 	return isCanceled;

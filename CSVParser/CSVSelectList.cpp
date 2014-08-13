@@ -244,7 +244,7 @@ void CSVSelectList::Select(int songlistIdx) {
 
 
 	// set number
-	CSVNumber::setNumber(CSVNumConst::BPM, current->songData.minBPM);
+	CSVNumber::setNumber(CSVNumConst::BMS_BPM, current->songData.minBPM);
 	CSVNumber::setNumber(CSVNumConst::MINBPM, current->songData.minBPM);
 	CSVNumber::setNumber(CSVNumConst::MAXBPM, current->songData.maxBPM);
 	if (songs_diff[CSVSongDataDifficulty::BEGINNER] > 0)

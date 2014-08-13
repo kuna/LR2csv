@@ -127,8 +127,14 @@ void CSVSettings::ChangeDSTOpt() {
 	// only for CUSTOMOPTION
 	for (auto it=settings.begin(); it != settings.end(); ++it) {
 		int key = it->second.optType;
-		if (key >= 900)
+		if (key >= 900) {
+			// disable all opt first
+			for (int i=0; i<it->second.optValues.size(); i++)
+				CSVOption::setOption(key+i, 0);
+
+			// and set only key
 			CSVOption::setOption(key, 1);
+		}
 	}
 }
 

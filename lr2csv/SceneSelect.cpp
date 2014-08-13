@@ -39,3 +39,9 @@ void SceneSelect::OnMouseMove(int x, int y) {
 
 void SceneSelect::OnMouseWheel(int delta) {
 }
+
+void SceneSelect::InitalizeScene() {
+}
+
+void SceneSelect::InvalidateScene() {
+}

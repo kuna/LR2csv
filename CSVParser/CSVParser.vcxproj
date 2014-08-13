@@ -53,6 +53,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);MARKUP_STL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -67,6 +68,7 @@
     <ClInclude Include="CSVData.h" />
     <ClInclude Include="CSVdrawarg.h" />
     <ClInclude Include="CSVElement.h" />
+    <ClInclude Include="CSVEventHandler.h" />
     <ClInclude Include="CSVFile.h" />
     <ClInclude Include="CSVFont.h" />
     <ClInclude Include="CSVNumber.h" />
@@ -85,6 +87,7 @@
     <ClCompile Include="CSVButton.cpp" />
     <ClCompile Include="CSVData.cpp" />
     <ClCompile Include="CSVElement.cpp" />
+    <ClCompile Include="CSVEventHandler.cpp" />
     <ClCompile Include="CSVFile.cpp" />
     <ClCompile Include="CSVFont.cpp" />
     <ClCompile Include="CSVNumber.cpp" />

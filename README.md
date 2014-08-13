@@ -140,6 +140,7 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 140814
 - sample movie uploaded.
 - more detail result/playing screen & dst/timing events.
+- negative number rendering bug fixed
 
 ---------------------
 
@@ -152,4 +153,5 @@ TODO
 21. scene마다 다른 key input system 만들기
 22. skinselect implementation
 23. directinput
+24. press effect when longnote
 </pre>

@@ -13,7 +13,7 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
             return 0;
         case WM_PAINT:
             //ValidateRect( hWnd, NULL );
-            //return 0;
+			return 0;
 		case WM_LBUTTONDOWN:
 			dxGame->currentScene->OnLButtonDown(LOWORD(lParam), HIWORD(lParam));
 			return 0;

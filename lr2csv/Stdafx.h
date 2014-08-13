@@ -31,6 +31,7 @@
 #include "..\CSVParser\CSVSlider.h"
 #include "..\CSVParser\CSVText.h"
 #include "..\CSVParser\CSVTimer.h"
+#include "..\CSVParser\CSVEventHandler.h"
 #ifdef _DEBUG
 #pragma comment(lib, "..\\Debug\\CSVParser.lib")
 #else

@@ -16,6 +16,7 @@ public:
 	static void startScene();
 	static bool loadScene(int mode);
 	static double getFadeAlpha();
+	static void Invalidate();	// should be called every frame
 
 	static void LoadSkinResource(DXGame *dxGame);
 	static void ReleaseSkinResource();
@@ -23,13 +24,14 @@ public:
 	static void ReleaseSounds();
 	static void PlaySound(int num);
 	static void StopSound(int num=-1);
-	static void Release();
+	static void Release();	// when program ends
 
 	// check list
 	static void InitSelectList();
 	static void SelectList();
 
 	static CSVData* getCSVData();
+	static CSVEventHandler* getCSVHandler();
 	static DXTexture* getTexture(int num);
 	static DXFont* getFont(int num);
 };

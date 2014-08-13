@@ -3,7 +3,7 @@
 #include "GameManager.h"
 
 void SceneCommon::OnKeyDown(int key) {
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnKeyDown(key);
 }
 
@@ -34,26 +34,26 @@ void SceneCommon::OnLButtonDown(int x, int y) {
 	CSVButton::Click(x, y);
 	CSVSlider::mouseDown(x, y);
 
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnLButtonDown(x, y);
 }
 
 void SceneCommon::OnLButtonUp(int x, int y) {
 	CSVSlider::mouseUp();
 	
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnLButtonUp(x, y);
 }
 
 void SceneCommon::OnRButtonDown(int x, int y) {
 	// cancel event
 	// like shutter close, parent folder, cancel song.
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnRButtonDown(x, y);
 }
 
 void SceneCommon::OnRButtonUp(int x, int y) {
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnRButtonUp(x, y);
 }
 
@@ -63,7 +63,7 @@ void SceneCommon::OnMouseMove(int x, int y) {
 		CSVSelectList::checkSlider();
 	}
 	
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnMouseMove(x, y);
 }
 
@@ -74,6 +74,16 @@ void SceneCommon::OnMouseWheel(int wheel) {
 		CSVSelectList::MoveDown();
 	}
 	
-	if (currentInput)
+	if (currentInput && receiveInput)
 		currentInput->OnMouseWheel(wheel);
+}
+
+void SceneCommon::InvalidateScene() {
+	if (currentInput)
+		currentInput->InvalidateScene();
+}
+
+void SceneCommon::InitalizeScene() {
+	if (currentInput)
+		currentInput->InitalizeScene();
 }

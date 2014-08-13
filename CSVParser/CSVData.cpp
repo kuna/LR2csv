@@ -13,6 +13,9 @@ CSVData::~CSVData() {
 }
 
 void CSVData::Clear() {
+	/*
+	 * memory clear
+	 */
 	csvBar = 0;
 
 	// clear elements
@@ -39,4 +42,19 @@ void CSVData::Clear() {
 	images.clear();
 
 	csvBarTitle.clear();
+
+	/*
+	 * options clear
+	 */
+	
+	barCenter = 0;
+	colorKey.r = colorKey.g = colorKey.b = 0;
+	loadStartTime = 0;
+	loadEndTime=0;
+	playStartTime=0;
+	sceneTime=0;
+	fadeInTime=0;
+	fadeOutTime=0;
+	inputStartTime=0;
+	skipTime=0;
 }

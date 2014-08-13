@@ -151,7 +151,7 @@ void CSVRenderer::drawNumber(CSVElement *csvElement, int num) {
 				if (multiply == 10)
 					continue;
 				else
-					currentNum = 10;
+					currentNum = -1;
 			}
 			csvElement->getNUMSRC(&csrc, currentNum, negative);
 			sx -= nWidth;

@@ -28,6 +28,7 @@ DXFont fonts[256];
 CSVData csvData;
 CSVData csvSoundData;
 BMSData bmsData;
+CSVEventHandler handler;
 
 // scene/key input
 SceneCommon sceneCommon;
@@ -78,7 +79,8 @@ bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
 		double rotation = dst->getAngle()/360.0f*2*3.14f;
 
 		// draw!
-		GameManager::dxGame->DrawTexture(GameManager::getTexture(imgnum), &src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
+		GameManager::dxGame->DrawTexture(GameManager::getTexture(imgnum), 
+			&src_rect, &dst_rect, rgba, &rotateCentre, rotation, dst->getBlend(), dst->getFilter());
 	} else {
 		D3DXCOLOR rgba = D3DXCOLOR(dst->getR()/256.0f,
 			dst->getG()/256.0f, dst->getB()/256.0f, dst->getA()/256.0f);
@@ -95,6 +97,7 @@ bool drawFunc(int imgnum, const TCHAR *text, CSVSRC *src, CSVDST *dst) {
 	return true;
 }
 
+int beat = 0;
 void notedrawFunc() {
 	if (CSVTimer::isTimerActiviated(CSVTimerConst::PLAYSTART)) {
 		double speed = 1;
@@ -141,8 +144,11 @@ void notedrawFunc() {
 			}
 		}
 
-		// set current song progress
-		CSVSlider::setSliderValue(CSVSliderConst::SONG_PROGRESS, (double)CSVTimer::getTime(CSVTimerConst::PLAYSTART) / bmsData.time / 1000);
+		// if beat is different, then reactivate RHYTHM_TIMER
+		if ((int)(nowBeat*2) != beat) {
+			beat = nowBeat*2;
+			CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
+		}
 	}
 }
 
@@ -158,8 +164,7 @@ void notedrawFunc() {
    - when fadeout time started, all input are invalid.
  */
 
-// fadein / fadeout ...?
-int fadingStartTime = 0;
+
 void scene_end() {
 	// move to another scene
 	switch (GameManager::GameMode) {
@@ -167,53 +172,51 @@ void scene_end() {
 		GameManager::loadScene(GAMEMODE::DECIDE);
 		break;
 	case GAMEMODE::DECIDE:
-		GameManager::loadScene(GAMEMODE::PLAY);
+		// if canceled, then return to select screen.
+		if (sceneDecide.getIsCanceled()) {
+			GameManager::loadScene(GAMEMODE::SELECT);
+		} else {
+			GameManager::loadScene(GAMEMODE::PLAY);
+		}
 		break;
 	case GAMEMODE::PLAY:
+		// if canceled, then return to select screen.
+		// (only total note count is 0, canceling is allowed.)
 		GameManager::loadScene(GAMEMODE::RESULT);
 		break;
 	case GAMEMODE::RESULT:
 		GameManager::loadScene(GAMEMODE::SELECT);
 		break;
 	}
-
-	// restore fading time
-	fadingStartTime = 0;
 }
 
 void scene_end_prepare() {
 	// remove(disable) input device
 	sceneCommon.currentInput = 0;
+}
 
-	// give fadeout
-	fadingStartTime = CSVTimer::getTime(CSVTimerConst::MAIN);
-	// another callback to scene_end after fadeout time
-	CSVTimer::setCallback(CSVTimerConst::MAIN, fadingStartTime+csvData.fadeOutTime, scene_end);
+void input_start() {
+	// set input
+	sceneCommon.receiveInput = true;
 }
 
 void play_start() {
 	CSVTimer::setTime(CSVTimerConst::PLAYSTART);
 	CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
 
-	// callback 'end' function at the end of the timer ...
-	sceneTime = bmsData.time*1000 + csvData.fadeOutTime + 2000;	// TODO: 2000 is okay?
-	CSVTimer::setCallback(CSVTimerConst::PLAYSTART, sceneTime, scene_end_prepare);
+	// set end time
+	handler.setSceneEndTime(CSVTimer::getTime(CSVTimerConst::MAIN) + 
+		bmsData.time*1000 + csvData.fadeOutTime + 2000);	// TODO: 2000 is okay?
 }
 
 void load_end_callback() {
-	// check if load end
-	// if not, then this function should be signaled by GameResource class.
-	gameResource.isSongLoaded = true;	// TEMP
-	if (gameResource.isSongLoaded) {
-		CSVTimer::setTime(CSVTimerConst::READY);
-		CSVTimer::setCallback(CSVTimerConst::READY, csvData.playStartTime, play_start);
-	}
+	// start ready
+	CSVTimer::setTime(CSVTimerConst::READY);
 }
 
 void load_start() {
-	// and set callback timer
-	CSVTimer::setCallback(CSVTimerConst::MAIN, 
-		CSVTimer::getTime(CSVTimerConst::MAIN)+csvData.loadEndTime, load_end_callback);
+	// check loaded
+	handler.loadingComplete();
 }
 
 void scene_play() {
@@ -222,10 +225,6 @@ void scene_play() {
 
 	// and set load start time
 	CSVTimer::setCallback(CSVTimerConst::MAIN, csvData.loadStartTime, load_start);
-}
-
-// works after FADEOUT time
-void cancel_current_scene() {
 }
 
 
@@ -251,6 +250,14 @@ void GameManager::InitGame(DXGame *dxGame_) {
 
 	// set rendering function
 	CSVRenderer::SetdrawFunc(drawFunc);
+	
+	// set handler
+	handler.setOnFadeOutStart(scene_end_prepare);
+	handler.setOnFadeOutEnd(scene_end);
+	handler.setOnLoadStart(load_start);
+	handler.setOnLoadEnd(load_end_callback);
+	handler.setOnPlayStart(play_start);
+	handler.setOnInputStart(input_start);
 }
 
 
@@ -385,12 +392,8 @@ void GameManager::SelectList() {
 	case CSVSelectType::COURSEFOLDER:
 		break;
 	case CSVSelectType::SONG:
-		// goto decide screen
-		loadScene(GAMEMODE::DECIDE);
-
-		// and set timer callback function for play screen...
-		CSVTimer::setCallback(CSVTimerConst::MAIN, csvData.sceneTime, scene_play);
-		
+		// scene end (goto select)
+		handler.endScene();
 		break;
 	}
 }
@@ -423,6 +426,10 @@ bool GameManager::setGameMode(int mode) {
 				return false;
 			}
 
+			// init input
+			sceneCommon.receiveInput = false;
+			sceneCommon.currentInput = &sceneSelect;
+
 			// play sound
 			StopSound();
 			PlaySound(SOUND::SELECT);
@@ -433,11 +440,23 @@ bool GameManager::setGameMode(int mode) {
 				return false;
 			}
 
+			// init input
+			sceneCommon.receiveInput = false;
+			sceneCommon.currentInput = &sceneDecide;
+
 			// play sound
 			StopSound();
 			PlaySound(SOUND::DECIDE);
 			break;
 		case GAMEMODE::PLAY:
+			// load BMS
+			bmsData.dispose();
+			BMSParser::LoadBMSFile(CSVFile::GetAbsolutePath(L"LR2files\\Config\\sample_7.bme"), bmsData);
+			bmsData.convertLNOBJ();
+			bmsData.checkKey();
+			bmsData.setTimemark();
+			bmsData.fillNotePosition(bmsData.bmsdata, 100, true);
+
 			// set option
 			CSVOption::setOption(CSVOptionConst::BGA_NORMAL, 1);
 			CSVOption::setOption(CSVOptionConst::BGA_EXTEND, 0);
@@ -449,45 +468,27 @@ bool GameManager::setGameMode(int mode) {
 	
 			CSVOption::setOption(CSVOptionConst::PLAYER1_NORMAL_GUAGE, 1);
 			CSVOption::setOption(CSVOptionConst::PLAYER1_HARD_GUAGE, 0);
-			CSVOption::setOption(912, 1);	// guage number ...??
+			//CSVOption::setOption(912, 1);	// guage number ...??
 
-			// set number
-			CSVNumber::setNumber(CSVNumConst::BPM, 120);	// set BPM
-			CSVNumber::setNumber(CSVNumConst::PLAYER_1P_GUAGE, 84);	// set Guage
-
-			// set bargraph
-			CSVBargraph::setVal(CSVBargraphConst::PLAY_EXSCORE_1P, 0.1);
-			CSVBargraph::setVal(CSVBargraphConst::PLAY_HIGHSCORE_1P_RESULT, 0.7);
-			CSVBargraph::setVal(CSVBargraphConst::PLAY_TARGET_EXSCORE_2P_CURRENT, 0.2);
-			CSVBargraph::setVal(CSVBargraphConst::PLAY_TARGET_EXSCORE_2P_RESULT, 0.8);
-			
-			// shutter test
-			CSVSlider::setSliderValue(CSVSliderConst::SHUTTER_1P, 0.3);
+			// set bms file
+			scenePlay.SetBMSData(&bmsData);
 
 			// load CSV
 			if (!CSVReader::readCSVFile(GameSetting::scene.play, &csvData)) {
 				return false;
 			}
 
-			// load BMS
-			bmsData.dispose();
-			BMSParser::LoadBMSFile(CSVFile::GetAbsolutePath(L"LR2files\\Config\\sample_7.bme"), bmsData);
-			bmsData.convertLNOBJ();
-			bmsData.checkKey();
-			bmsData.setTimemark();
-			bmsData.fillNotePosition(bmsData.bmsdata, 100, true);
-
-			// etc ...
-			scenePlay.SetBMSData(&bmsData);
+			// init input
+			sceneCommon.receiveInput = false;
 			sceneCommon.currentInput = &scenePlay;
+
+			// set note draw func
 			CSVRenderer::SetnotedrawFunc(notedrawFunc);
 
 			// play sound
 			//PlaySound(SOUND::);
 			break;
 		case GAMEMODE::RESULT:
-			sceneCommon.currentInput = 0;
-
 			// clear or fail?
 			CSVOption::setOption(CSVOptionConst::RESULT_CLEAR, 1);
 			CSVOption::setOption(CSVOptionConst::RESULT_FAIL, 0);
@@ -496,6 +497,10 @@ bool GameManager::setGameMode(int mode) {
 			if (!CSVReader::readCSVFile(GameSetting::scene.result, &csvData)) {
 				return false;
 			}
+
+			// init input
+			sceneCommon.receiveInput = false;
+			sceneCommon.currentInput = &sceneResult;
 			
 			CSVRenderer::SetnotedrawFunc(0);
 
@@ -504,15 +509,11 @@ bool GameManager::setGameMode(int mode) {
 			PlaySound(SOUND::CLEAR);
 			break;
 	}
+	
+	// init scene
+	sceneCommon.InitalizeScene();
 
 	return true;
-}
-
-void GameManager::startScene() {
-	CSVTimer::invalidateTime();
-
-	// set timer
-	CSVTimer::setTime(CSVTimerConst::MAIN);
 }
 
 bool GameManager::loadScene(int mode) {
@@ -525,36 +526,33 @@ bool GameManager::loadScene(int mode) {
 			return false;
 		}
 
-		// set scene time
-		sceneTime = csvData.sceneTime;
-
+		// load skin resource
 		LoadSkinResource(dxGame);
+
+		// set scene handler
+		handler.setCSVData(&csvData);
 	}
 
 	// game just begun!
 	GameManager::startScene();
 
-	// need to implement event changing...?
 	return true;
 }
 
-double GameManager::getFadeAlpha() {
-	if (!csvData.sceneTime)
-		return 0;
+void GameManager::startScene() {
+	CSVTimer::invalidateTime();
 
-	int curTime = CSVTimer::getTime(CSVTimerConst::MAIN);
-	if (csvData.fadeInTime > curTime) {
-		double a = (double)curTime/csvData.fadeInTime;
-		return 1-a;
-	}
-	if (fadingStartTime) {
-		double a = (double)(curTime-fadingStartTime) / csvData.fadeOutTime;
-		if (a>1)
-			return 1;
-		else
-			return a;
-	}
-	return 0;
+	// set timer
+	CSVTimer::setTime(CSVTimerConst::MAIN);
+}
+
+double GameManager::getFadeAlpha() {
+	return handler.getSceneAlpha();
+}
+
+void GameManager::Invalidate() {
+	handler.checkEvent();
+	sceneCommon.InvalidateScene();
 }
 
 void GameManager::LoadSkinResource(DXGame *dxGame) {
@@ -609,6 +607,10 @@ void GameManager::Release() {
 
 CSVData* GameManager::getCSVData() {
 	return &csvData;
+}
+
+CSVEventHandler* GameManager::getCSVHandler() {
+	return &handler;
 }
 
 DXTexture* GameManager::getTexture(int num) {

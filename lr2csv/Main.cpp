@@ -35,11 +35,15 @@ VOID Render() {
 	// update time per each frame
 	CSVTimer::invalidateTime();
 
+	// call handler each time
+	GameManager::Invalidate();
+
+	//
 	// start scene
+	//
 	dxGame.Clear(0, 0, 0, 0);
 	dxGame.BeginScene();
 
-	// http://irrlicht.sourceforge.net/docu/example006.html
 	// draw sprites
 	dxGame.BeginSprite();
 	CSVRenderer::drawAll(GameManager::getCSVData());
@@ -65,7 +69,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	GameSetting::LoadSetting();
 
 	// create window
-	hWnd = dxGame.MakeWindow(L"LR2csv Alpha 140812", 
+	hWnd = dxGame.MakeWindow(L"LR2csv Alpha 140813", 
 		GameSetting::screen.width, GameSetting::screen.height);
 
 	// init device

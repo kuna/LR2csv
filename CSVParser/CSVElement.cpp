@@ -240,11 +240,11 @@ CSVSRC* CSVElement::getCurrentSRC() {
 	return src[srcNum];
 }
 
-void CSVElement::getNUMSRC(CSVSRC *c, int num, bool negative=false, bool sign) {
+void CSVElement::getNUMSRC(CSVSRC *c, int num, bool negative, bool sign) {
 	// INFO
 	// negative num only works
 	// in 24 mode.
-	// if num is bigger then 10 && !(10 mode),
+	// if num is smaller then 0 && !(10 mode),
 	// then it'll show zero of non-number. (ind 10)
 
 	// NUMBER has no OP condition,
@@ -264,9 +264,9 @@ void CSVElement::getNUMSRC(CSVSRC *c, int num, bool negative=false, bool sign) {
 	// get idx of cycle
 	int idx = 0;
 	if (src[srcNum]->getCycle() > 0) {
-		int TotalFrame = (src[srcNum]->getdivX()*src[srcNum]->getdivY());
+		int TotalFrame = (src[srcNum]->getdivX()*src[srcNum]->getdivY()) / multiply;
 		int TimePerFrame = src[srcNum]->getCycle() / TotalFrame;
-		idx = (time/TimePerFrame) % (TotalFrame/multiply) ;
+		idx = (time/TimePerFrame) % TotalFrame;
 	}
 	
 	// convert num
@@ -277,16 +277,18 @@ void CSVElement::getNUMSRC(CSVSRC *c, int num, bool negative=false, bool sign) {
 			num = 11;
 		}
 	} else {
-		if (negative) {
-			if (multiply == 24) {
-				num = -num + 12;
-			}
-		}
-		if (num >= 10) {
+		if (num < 0) {	// non-number zero
 			if (negative) {
 				num = 22;
 			} else {
 				num = 10;
+			}
+		} else {
+			// for negative number
+			if (negative) {
+				if (multiply == 24) {
+					num = num + 12;
+				}
 			}
 		}
 	}

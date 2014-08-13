@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 	<scene name="select">
-		<file>LR2Files\Theme\20th tricoro for HD\Select\select.lr2skin</file>
+		<file>LR2Files\Theme\LR2\Select\select.lr2skin</file>
 	</scene>
 	<scene name="decide">
 		<file>LR2Files\Theme\LR2\Decide\decide.lr2skin</file>
 	</scene>
 	<scene name="play">
-		<file>LR2Files\Theme\20th tricoro for HD\play\play_7.lr2skin</file>
+		<file>LR2Files\Theme\REMI-S\play\7key.lr2skin</file>
 	</scene>
 	<scene name="result">
-		<file>LR2Files\Theme\20th tricoro for HD\Result\result.lr2skin</file>
+		<file>LR2Files\Theme\LR2\Result\result.lr2skin</file>
 	</scene>
 	<scene name="keysetting">
 		<file></file>
@@ -21,8 +21,8 @@
 
 	<!-- common settings (not csv custom) -->
 	<setting name="screen">
-		<width>1280</width>
-		<height>720</height>
+		<width>640</width>
+		<height>480</height>
 	</setting>
 	<setting name="key7">
 		<key name="1">A</key>
