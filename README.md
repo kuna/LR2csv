@@ -39,6 +39,9 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 * Editing text
 * Storing/Load/configure settings
 
+### Sample
+[![preview](http://img.youtube.com/vi/kpOnwJO2H_g/0.jpg)](http://www.youtube.com/watch?v=kpOnwJO2H_g)
+
 ### Major change log
 
 <pre>
