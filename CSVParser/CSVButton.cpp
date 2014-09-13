@@ -4,6 +4,7 @@
 #include "CSVConst.h"
 #include "CSVTimer.h"
 #include "CSVOption.h"
+#include "CSVUI.h"
 
 CSVData* CSVButton::currentCSV = 0;
 int CSVButton::btnstatus[MAXID];
@@ -90,17 +91,86 @@ void CSVButton::ProcessButtonID(int id, int x, int y, int wid, int hei) {
 		 * PANEL PART
 		 * *********************************/
 		case CSVButtonConst::PANEL1:
-			if (!GetClick(id)) {
-				// open panel 1
-				CSVTimer::setTime(CSVTimerConst::PANEL1_START);
-				CSVTimer::deActiviateTimer(CSVTimerConst::PANEL1_END);
-				CSVOption::setOption(CSVOptionConst::PANEL_1START, 1);
+			// close all other panel first
+			CSVUI::panelHide(2);
+			CSVUI::panelHide(3);
+			CSVUI::panelHide(4);
+			CSVUI::panelHide(5);
+			CSVUI::panelHide(6);
+			CSVUI::panelHide(7);
+			CSVUI::panelHide(8);
+			CSVUI::panelHide(9);
+			SetClick(2,0);
+			SetClick(3,0);
+			SetClick(4,0);
+			SetClick(5,0);
+			SetClick(6,0);
+			SetClick(7,0);
+			SetClick(8,0);
+			SetClick(9,0);
+
+			if (GetClick(id)) {
+				CSVUI::panelHide(1);
 			} else {
-				// close panel 1
-				CSVTimer::deActiviateTimer(CSVTimerConst::PANEL1_START);
-				CSVTimer::setTime(CSVTimerConst::PANEL1_END);
-				CSVOption::setOption(CSVOptionConst::PANEL_1START, 0);
+				CSVUI::panelShow(1);
 			}
+
+			SetClickToggle(id);
+			break;
+
+		case CSVButtonConst::PANEL2:
+			// close all other panel first
+			CSVUI::panelHide(1);
+			CSVUI::panelHide(3);
+			CSVUI::panelHide(4);
+			CSVUI::panelHide(5);
+			CSVUI::panelHide(6);
+			CSVUI::panelHide(7);
+			CSVUI::panelHide(8);
+			CSVUI::panelHide(9);
+			SetClick(1,0);
+			SetClick(3,0);
+			SetClick(4,0);
+			SetClick(5,0);
+			SetClick(6,0);
+			SetClick(7,0);
+			SetClick(8,0);
+			SetClick(9,0);
+
+			if (GetClick(id)) {
+				CSVUI::panelHide(2);
+			} else {
+				CSVUI::panelShow(2);
+			}
+
+			SetClickToggle(id);
+			break;
+
+		case CSVButtonConst::PANEL3:
+			// close all other panel first
+			CSVUI::panelHide(1);
+			CSVUI::panelHide(2);
+			CSVUI::panelHide(4);
+			CSVUI::panelHide(5);
+			CSVUI::panelHide(6);
+			CSVUI::panelHide(7);
+			CSVUI::panelHide(8);
+			CSVUI::panelHide(9);
+			SetClick(1,0);
+			SetClick(2,0);
+			SetClick(4,0);
+			SetClick(5,0);
+			SetClick(6,0);
+			SetClick(7,0);
+			SetClick(8,0);
+			SetClick(9,0);
+
+			if (GetClick(id)) {
+				CSVUI::panelHide(3);
+			} else {
+				CSVUI::panelShow(3);
+			}
+
 			SetClickToggle(id);
 			break;
 			
@@ -352,4 +422,8 @@ void CSVButton::SetClickToggle(int btnnum) {
 void CSVButton::SetClickClear() {
 	for (int i=0; i<MAXID; i++)
 		btnstatus[i] = 0;
+}
+
+void CSVButton::SetClick(int btnnum, int val) {
+	btnstatus[btnnum] = val;
 }

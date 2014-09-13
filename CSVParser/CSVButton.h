@@ -20,5 +20,6 @@ public:
 	static void SetClickDown(int btnnum);
 	static void SetClickUp(int btnnum);
 	static void SetClickToggle(int btnnum);
+	static void SetClick(int btnnum, int val);
 	static void SetClickClear();
 };

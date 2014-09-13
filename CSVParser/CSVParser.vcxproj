@@ -80,6 +80,7 @@
     <ClInclude Include="CSVSlider.h" />
     <ClInclude Include="CSVText.h" />
     <ClInclude Include="CSVTimer.h" />
+    <ClInclude Include="CSVUI.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +100,7 @@
     <ClCompile Include="CSVSlider.cpp" />
     <ClCompile Include="CSVText.cpp" />
     <ClCompile Include="CSVTimer.cpp" />
+    <ClCompile Include="CSVUI.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
