@@ -141,7 +141,6 @@ CSVElement::CSVElement() {
 	srcNum = 0;
 	dstOffsetX = 0;
 	dstOffsetY = 0;
-	related = 0;
 }
 
 CSVElement::~CSVElement() {
@@ -238,6 +237,15 @@ int CSVElement::getSRCIndex() {
 
 CSVSRC* CSVElement::getCurrentSRC() {
 	return src[srcNum];
+}
+
+CSVDST* CSVElement::getCurrentDST(int idx) {
+	return dst[dstNum][idx];
+}
+
+CSVDST* CSVElement::getCurrentLastDST() {
+	int idx = dst[dstNum].size()-1;
+	return getCurrentDST(idx);
 }
 
 void CSVElement::getNUMSRC(CSVSRC *c, int num, bool negative, bool sign) {
@@ -419,14 +427,6 @@ bool CSVElement::getDSTBar(CSVDST *c, int idx) {
 	return r;
 }
 
-void CSVElement::setRelatedElement(CSVElement *csv) {
-	related = csv;
-}
-
-CSVElement* CSVElement::getRelatedElement() {
-	return related;
-}
-
 void CSVSRC::setSRC(TCHAR *args[]) {
 	type = CSVElement::getTypeInt(args[0]+5);
 
@@ -585,6 +585,22 @@ int CSVSRC::getSliderType() {
 
 int CSVSRC::getSliderDisable() {
 	return src[13];	// longest argument!
+}
+
+int CSVSRC::getONX() {
+	return src[11];
+}
+
+int CSVSRC::getONY() {
+	return src[12];
+}
+
+int CSVSRC::getONX2() {
+	return src[13];
+}
+
+int CSVSRC::getONY2() {
+	return src[14];	// longest argument!
 }
 
 bool CSVSRC::checkOP() {
@@ -759,6 +775,6 @@ void CSVDST::setDSTHeight(int height) {
 }
 
 bool CSVDST::isContains(int x, int y) {
-	return (x > getX() && x < getX2() &&
-		y > getY() && y < getY2());
+	return (x >= getX() && x <= getX2() &&
+		y >= getY() && y <= getY2());
 }

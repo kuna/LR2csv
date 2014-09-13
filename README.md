@@ -147,14 +147,51 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
+140818
+- ONMOUSE rendering process fixed.
+- 
+
 
 TODO
+23. directinput
+33. 노트 제대로 그리기
+34. DP, 2P 모드 지원...
+
 13. JUDGELINE 유효하게 표시 (hdc로 surface에 직접 접근?)
 18. irrlicht 엔진과 통합
 19. change to rhw coordinate
-20. fade in / fade out, canceling 적용.
-21. scene마다 다른 key input system 만들기
 22. skinselect implementation
-23. directinput
 24. press effect when longnote
+
+25. option 창 기능 모두 구현하기.
+  - 첫 로드시 text 갱신시도.
+  - 옵션 변경시 text 갱신시도.
+  - 옵션변경? -> button class에서 처리.
+26. 키음 로드 및 재생.
+27. 버튼 커맨드 스크립트 처리.
+// button script
+// #ONCLICK,(id), #ONLEFT,(id) - , #ONRIGHT,(id) - ,
+// #OPTION,(num),(val),, - 
+// #TIMER,(num),(offset),, - offset은 비워놓을 수 있다.
+// #OPTION,
+  - 버튼 외 스크립트 처리 가능한 게 있나? * elements: image, button, bar_~~, 
+  - TIMER및 OPTION 수정하는대부분의 모드에 대한 SCRIPT 작성이 가능함. (하지만 SELECT 부분은 하드코딩하는걸로...)
+27-1. 버튼에 이벤트 핸들러 추가/삭제 기능 넣기.
+27-2. 옵션도 바깥으로 빼놓기 ...?
+  - 일단 inner로 만들어서 컴파일 한 후에.
+28. csv parser 만들기
+  - 자동으로 encode detect.
+  - method: ReadCSVFile(wstring &path), ResetPos(), next(), ReadLineRaw(wstring &), ReadLine(CSVLine *csvLine), SetTriggerName(wstring &), SetTrigger, ResetTrigger(), dispose()
+  - csvLine method: int GetElement(int num) / wstring& GetElement(int num)
+29. csv parser로 button script 등 여러 parser에 적용.
+
+30. float speed 적용하기. (hide & show 타이머와 option 만들기.)
+31. V-REFX 바꿀때 애니메이션
+ - 게임에서는 가운데 기준으로 alpha값이 적용됨. (밖->안 효과도 적용됨.)
+ - 현재 LR2에서는 밖으로 나갔다가 다시 돌아오는 효과가 나옴.
+32. OPTiON window
+  - 게임에서는 위쪽에 키모습, 아래에 버튼들 상태 나옴.
+  - 배경은 약간 darker 해짐.
+  - 왼쪽에 target 나오는데 이건 어떻게 처리해야 하나 ...
+
 </pre>

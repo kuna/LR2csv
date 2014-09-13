@@ -6,5 +6,5 @@ private:
 
 public:
 	static std::wstring &GetText(int num);
-	static void SetText(int num, std::wstring &str);
+	static void SetText(int num, std::wstring str);
 };

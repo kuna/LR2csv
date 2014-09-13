@@ -14,7 +14,7 @@ public:
 	static void SetCurrentCSV(CSVData *csv);
 	static CSVElement *GetElementOfPos(CSVData *csv, int x, int y, int filter=-1);
 	static void Click(int x, int y);
-	static void ProcessButtonID(int id);
+	static void ProcessButtonID(int id, int x=0, int y=0, int wid=0, int hei=0);
 	
 	static bool GetClick(int btnnum);
 	static void SetClickDown(int btnnum);

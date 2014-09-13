@@ -13,6 +13,53 @@ about custom DSTOPTION, *.ext paths and so on ...
 
 class CSVData;	// prevent each-referencing
 
+namespace CSVPlayOptionConst {
+	enum CSVPlayOptionConst {
+		GUAGEMODE_1P = 0,
+		GUAGEMODE_2P = 1,
+		ASSIST_1P = 2,
+		ASSIST_2P = 3,
+		RANDOM_1P = 4,
+		RANDOM_2P = 5,
+		EFFECT_1P = 6,
+		EFFECT_2P = 7,
+		HISPEED_1P = 8,
+		HISPEED_2P = 9,
+		FLIP = 10,
+		SCOREGRAPH = 11,
+		HISPEED_FIX = 12,
+		GHOST = 13,
+		BGA = 14,
+		BGASIZE = 15,
+		BATTLE = 16,
+		JUDGETIMING = 17,
+		JUDGETIMING_AUTO = 18,
+		TARGET = 19,
+		SCREENMODE = 20,
+		VSYNC = 21,
+		SAVE_REPLAY = 22,
+		FAVORITE = 23,
+		SHUTTER = 24,
+		TARGETRATE = 25,
+		PLAYMODE = 26,
+	};
+};
+
+class CSVPlayOption {
+public:
+	CSVPlayOption();
+
+	void option_next(int opt);
+	void option_prev(int opt);
+	const std::wstring& option_getstring(int opt);
+	void option_applytext();
+private:
+	std::vector<std::wstring> settingString[50];	// stores setting string value
+	int settingStringIdx[50];						// stores setting string index
+
+	int option[1000];
+};
+
 class CSVCustomOption {
 public:
 	CSVCustomOption();
@@ -36,6 +83,8 @@ private:
 	static CSVData *csv;
 
 public:
+	static CSVPlayOption playOption;
+
 	static bool LoadSettings(CSVData *csvData);
 	static bool SaveSettings();
 	static void ClearSettings();

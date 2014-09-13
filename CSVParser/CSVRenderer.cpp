@@ -209,14 +209,30 @@ void CSVRenderer::drawElement(CSVElement *csvElement) {
 			}
 
 			// draw image
-			drawFunc(csvElement->src[csvElement->srcNum]->getImgNum(), 0, &csrc, &cdst);
+			drawFunc(csvElement->getCurrentSRC()->getImgNum(), 0, &csrc, &cdst);
 		
-			// check ONMOUSE
+			// TODO: check ONMOUSE
 			// (draw onmouse first)
+			// route had moved to drawAll
+			/*
 			CSVElement *onmouse = csvElement->getRelatedElement();
 			if (onmouse && isCursorInside(&cdst)) {
 				drawImage(onmouse);
-			}
+			}*/
+		}
+	} else if (type == CSVReader::CSVTYPE_ONMOUSE) {
+		// check isCursorInside
+		CSVDST *dst = csvElement->getCurrentLastDST();
+
+		if (dst) {
+			CSVSRC *src = csvElement->getCurrentSRC();
+			CSVDST ndst;
+			ndst.setDSTWidth( src->getONX2() );
+			ndst.setDSTHeight( src->getONY2() );
+			ndst.setDSTX( dst->getX()+src->getONX() );
+			ndst.setDSTY( dst->getY()+src->getONY() );
+			if (isCursorInside(&ndst))
+				drawImage(csvElement);
 		}
 	} else if (type == CSVReader::CSVTYPE_TEXT) {
 		// draw text

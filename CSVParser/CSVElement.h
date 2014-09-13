@@ -90,6 +90,11 @@ public:
 	int getSliderRange();
 	int getSliderType();
 	int getSliderDisable();
+	// for onmouse
+	int getONX();
+	int getONY();
+	int getONX2();
+	int getONY2();
 	
 	void setX(int val);
 	void setY(int val);
@@ -125,6 +130,8 @@ public:
 	void getSRC(CSVSRC *c);
 	int getSRCIndex();
 	CSVSRC* getCurrentSRC();
+	CSVDST* getCurrentDST(int idx);
+	CSVDST* getCurrentLastDST();
 	bool getDST(CSVDST *c);
 	bool getDSTBar(CSVDST *c, int idx);
 	void getNUMSRC(CSVSRC *c, int num, bool negative, bool sign=false);
@@ -136,10 +143,10 @@ public:
 
 	// relation
 	bool isRelatedExists();
-	void setRelatedElement(CSVElement *csv);
-	CSVElement* getRelatedElement();
+	//void setRelatedElement(CSVElement *csv);	TODO: depreciated
+	//CSVElement* getRelatedElement();
 private:
-	CSVElement* related;	// this will be used with button (ONMOUSE)
+	//CSVElement* related;	// this will be used with button (ONMOUSE) TODO: depreciated
 
 	int getNumberLength(int num);
 };

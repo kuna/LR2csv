@@ -60,5 +60,5 @@ public:
 	static int CSVTYPE_BAR_RANK;
 	static int CSVTYPE_BAR_RIVAL;
 
-	static CSVElement *prevBtn;	// for BUTTON~ONMOUSE event
+	//static CSVElement *prevBtn;	// for BUTTON~ONMOUSE event // TODO: depreciated
 };

@@ -42,7 +42,6 @@ int CSVReader::CSVTYPE_BAR_TITLE = CSVElement::getTypeInt(L"BAR_TITLE");
 int CSVReader::CSVTYPE_BAR_RANK = CSVElement::getTypeInt(L"BAR_RANK");
 int CSVReader::CSVTYPE_BAR_RIVAL = CSVElement::getTypeInt(L"BAR_RIVAL");
 
-CSVElement *CSVReader::prevBtn;	// for BUTTON~ONMOUSE event
 CSVData *CSVReader::currentCSV;
 int CSVReader::condition[256];		// used #IF~#ELSEIF~#ELSE~#ENDIF. true: 1, falsed: 0, used: 2
 int CSVReader::conditionDepth;
@@ -243,15 +242,19 @@ void CSVReader::processCSVLine(TCHAR *data) {
 				currentCSV->csvLine = csvElement;
 			}
 
+			// TODO: depreciated
 			// if ONMOUSE, then relate to previous Button
+			/*
 			if (mode == CSVTYPE_ONMOUSE && prevBtn) {
 				prevBtn->setRelatedElement(csvElement);
-			}
+			}*/
 
+			// TODO: depreciated
 			// if button, then store to previous one
+			/*
 			if (mode == CSVTYPE_BUTTON) {
 				prevBtn = csvElement;
-			}
+			}*/
 		} else if (wcsncmp(args[0], L"#DST_", 5) == 0) {
 			int mode = CSVElement::getTypeInt(args[0]+5);
 			
