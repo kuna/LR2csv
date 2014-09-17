@@ -31,38 +31,6 @@ CrtBreakAllocSetter g_crtBreakAllocSetter;
 HWND hWnd;
 DXGame dxGame;
 
-VOID Render() {
-	// update time per each frame
-	CSVTimer::invalidateTime();
-
-	// call handler each time
-	GameManager::Invalidate();
-
-	//
-	// start scene
-	//
-	dxGame.Clear(0, 0, 0, 0);
-	dxGame.BeginScene();
-
-	// draw sprites
-	dxGame.BeginSprite();
-	CSVRenderer::drawAll(GameManager::getCSVData());
-
-	// fadein/out
-	dxGame.fadeAlpha = GameManager::getFadeAlpha();
-	dxGame.FadeInOut();
-	dxGame.EndSprite();
-
-	/*TCHAR msg[30];
-	swprintf(msg, 30, L"FPS %d / MAIN %d", driver->getFPS(), CSVTimer::getTime(CSVTimerConst::PLAYSTART));
-	font->draw(msg,
-                core::rect<s32>(10,30,300,50),
-                video::SColor(255,255,255,255));*/
-
-	dxGame.EndScene();
-}
-
-
 INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 {
 	// load game setting 
@@ -77,6 +45,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 		MSGBOX_ERROR(hWnd, L"Failed to initalize DirectX!");
 		return FALSE;
 	}
+	dxGame.InitalizeInput();
 	
 	// show Window
     ShowWindow( hWnd, SW_SHOWDEFAULT );
@@ -91,15 +60,7 @@ INT WINAPI wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, INT )
 	GameManager::startScene();
 
     // Enter the message loop
-	// TODO: include it in DXGame ...?
-    MSG msg;
-    while( GetMessage( &msg, NULL, 0, 0 ) )
-    {
-        TranslateMessage( &msg );
-        DispatchMessage( &msg );
-		
-        Render();
-    }
+	dxGame.GameLoop();
 
 	// clear program...?
 	CSVSelectList::clearData();

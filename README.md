@@ -151,9 +151,29 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 - ONMOUSE rendering process fixed.
 - 
 
+---------------------
+
+~ 140916
+35. panel works (+ related button...)
+36. rendering thread 별개로 돌리기. (<- 취소됨.)
+28. csv parser 만들기
+  - 자동으로 encode detect.
+  - method: ReadCSVFile(wstring &path), ResetPos(), next(), ReadLineRaw(wstring &), ReadLine(CSVLine *csvLine), SetTriggerName(wstring &), SetTrigger, ResetTrigger(), dispose()
+  - csvLine method: int GetElement(int num) / wstring& GetElement(int num)
+23. directinput
+29. csv parser로 button script 등 여러 parser에 적용.
+  - CSVReader engine 수정.
+    * a
+    * b
+    * c
+  - music csv reader을 CSV Parser로 대체.
+37. CSVUI 만들기
+  - CSV에서 여러 동작과 관련된 switch 변경 등의 action을 수행해주는 method들을 제공해준다
+  - (1p/2p 콤보 표시, 패널 표시, IR랭크 표시, select bar 이펙트 표시 등)
+38. music play 함수를 CSVMusic 클래스 같은 곳에 넘겨주도록 한다. (알아서 CSV가 음악 재생 함수 호출할 수 있도록 ...)
+
 
 TODO
-23. directinput
 33. 노트 제대로 그리기
 34. DP, 2P 모드 지원...
 
@@ -179,11 +199,6 @@ TODO
 27-1. 버튼에 이벤트 핸들러 추가/삭제 기능 넣기.
 27-2. 옵션도 바깥으로 빼놓기 ...?
   - 일단 inner로 만들어서 컴파일 한 후에.
-28. csv parser 만들기
-  - 자동으로 encode detect.
-  - method: ReadCSVFile(wstring &path), ResetPos(), next(), ReadLineRaw(wstring &), ReadLine(CSVLine *csvLine), SetTriggerName(wstring &), SetTrigger, ResetTrigger(), dispose()
-  - csvLine method: int GetElement(int num) / wstring& GetElement(int num)
-29. csv parser로 button script 등 여러 parser에 적용.
 
 30. float speed 적용하기. (hide & show 타이머와 option 만들기.)
 31. V-REFX 바꿀때 애니메이션

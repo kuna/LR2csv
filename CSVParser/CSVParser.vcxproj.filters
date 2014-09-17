@@ -75,6 +75,9 @@
     <ClInclude Include="CSVUI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CSVParser.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CSVData.cpp">
@@ -126,6 +129,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CSVUI.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSVParser.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

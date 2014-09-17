@@ -2,6 +2,7 @@
 #include "Stdafx.h"
 #include "DXFont.h"
 #include "Scene.h"
+#include <boost\thread.hpp>
 
 #define CLASSNAME L"DXFREETYPE"
 #define MSGBOX_TITLE L"DXFREETYPE"
@@ -16,6 +17,12 @@ private:
 	IDirect3D9*		pd3d9;
 	IDirect3DDevice9* pd3dDevice;
 	IDirect3DSurface9* BackBuff;
+	
+	// directinput
+	char keyboardState[256];
+	LPDIRECTINPUT8 dinput;
+	LPDIRECTINPUTDEVICE8 dinputKeyboard;
+	void (*inputhandler)(int key, int status);
 
 	D3DPRESENT_PARAMETERS pp;
 
@@ -34,10 +41,17 @@ private:
 	// for rendering target
 	LPDIRECT3DSURFACE9 orgSurface;
 	LPDIRECT3DSURFACE9 newSurface;
+
+	// rendering thread
+	VOID Render();
+	boost::thread renderThread;
+	bool renderThreadAlive;
 public:
 	LPD3DXSPRITE sprite;
 	HWND MakeWindow(TCHAR *wndName, int width, int height);
 	BOOL Initalize(HWND hWnd);
+	BOOL InitalizeInput();
+	VOID GameLoop();
 
 	VOID ChangeMode(BOOL fullscreen);
 
@@ -48,7 +62,7 @@ public:
 	BOOL CreateFont(LPD3DXFONT *font, TCHAR *name, int height, int width=0);
 
 	VOID Clear(int a, int r, int g, int b);
-	VOID BeginScene();
+	BOOL BeginScene();
 	VOID EndScene();
 	
 	VOID BeginSprite();
@@ -63,6 +77,12 @@ public:
 	VOID FadeInOut();
 	VOID SetRenderTarget(LPDIRECT3DTEXTURE9 pTexture);
 	VOID ResetRenderTarget();
+	
+	// directinput
+	void updateDirectInput();
+	BOOL checkKeyboard(int);
+	void setInputeventHandler(void (*h)(int, int));
+
 public:
 	Scene *currentScene;
 };

@@ -73,6 +73,7 @@
     <ClInclude Include="CSVFont.h" />
     <ClInclude Include="CSVNumber.h" />
     <ClInclude Include="CSVOption.h" />
+    <ClInclude Include="CSVParser.h" />
     <ClInclude Include="CSVReader.h" />
     <ClInclude Include="CSVRenderer.h" />
     <ClInclude Include="CSVSelectList.h" />
@@ -93,6 +94,7 @@
     <ClCompile Include="CSVFont.cpp" />
     <ClCompile Include="CSVNumber.cpp" />
     <ClCompile Include="CSVOption.cpp" />
+    <ClCompile Include="CSVParser.cpp" />
     <ClCompile Include="CSVReader.cpp" />
     <ClCompile Include="CSVRenderer.cpp" />
     <ClCompile Include="CSVSelectList.cpp" />

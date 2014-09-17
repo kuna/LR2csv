@@ -2,7 +2,7 @@
 #include "ScenePlay.h"
 
 bool isKeyPressed[20];
-int keyArr[20] = {VK_SHIFT, 'Z', 'S', 'X', 'D', 'C', 'F', 'V', };
+int keyArr[20] = {DIK_LSHIFT, DIK_Z, DIK_S, DIK_X, DIK_D, DIK_C, DIK_F, DIK_V, };
 BMSKeyData* pressedLN[20];
 int pressedJudge[20];
 
@@ -37,15 +37,15 @@ void ScenePlay::OnKeyUp(int key) {
 	}
 
 	
-	if (key == 'Q') {
+	if (key == DIK_Q) {
 		// combo test
 		CSVTimer::setTime(CSVTimerConst::JUDGE_1P);
 	}
-	if (key == 'W') {
+	if (key == DIK_W) {
 		// fullcombo test
 		CSVTimer::setTime(CSVTimerConst::FULLCOMBO_1P);
 	}
-	if (key == 'R') {
+	if (key == DIK_R) {
 		// rhythm timer test
 		CSVTimer::setTime(CSVTimerConst::RHYTHM_TIMER);
 	}

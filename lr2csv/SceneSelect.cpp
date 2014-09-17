@@ -3,18 +3,18 @@
 #include "GameManager.h"
 
 void SceneSelect::OnKeyDown(int key) {
-	if (key == VK_UP) {
+	if (key == DIK_UP) {
 		CSVSelectList::MoveUp();
-	} else if (key == VK_DOWN) {
+	} else if (key == DIK_DOWN) {
 		CSVSelectList::MoveDown();
 	}
 }
 
 void SceneSelect::OnKeyUp(int key) {
-	if (key == VK_RIGHT) {
+	if (key == DIK_RIGHT) {
 		// select
 		GameManager::SelectList();
-	} else if (key == VK_LEFT) {
+	} else if (key == DIK_LEFT) {
 		// TODO: go to previous one
 		CSVSelectList::goPrevList();
 	}

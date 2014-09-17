@@ -1,6 +1,6 @@
 ﻿#include "Stdafx.h"
 #include "DXGame.h"
-
+#include "GameManager.h"
 
 DXGame *dxGame;		// warning: static method?
 
@@ -32,12 +32,12 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 		case WM_MOUSEWHEEL:
 			dxGame->currentScene->OnMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));
 			return 0;
-		case WM_KEYDOWN:
+		/*case WM_KEYDOWN:
 			dxGame->currentScene->OnKeyDown(wParam);
 			return 0;
 		case WM_KEYUP:
 			dxGame->currentScene->OnKeyUp(wParam);
-			return 0;
+			return 0;*/
 	}
 
     return DefWindowProc( hWnd, msg, wParam, lParam );
@@ -89,7 +89,9 @@ BOOL DXGame::Initalize(HWND hWnd) {
 	pp.BackBufferHeight = screenHeight;
 	pp.Flags = 0;            // No flags to set
 	pp.FullScreen_RefreshRateInHz=D3DPRESENT_RATE_DEFAULT; //Default Refresh Rate
-	pp.PresentationInterval=D3DPRESENT_INTERVAL_DEFAULT;   //Default Presentation rate
+	pp.PresentationInterval=D3DPRESENT_INTERVAL_ONE;   //Default Presentation rate
+	// VSync : D3DPRESENT_INTERVAL_ONE
+	// no VSync : D3DPRESENT_INTERVAL_IMMEDIATE
 	pp.BackBufferFormat=format;      //Display format
 	pp.EnableAutoDepthStencil=FALSE; //No depth/stencil buffer
 
@@ -109,6 +111,142 @@ BOOL DXGame::Initalize(HWND hWnd) {
 	CreateBlackScreen();
 
 	return TRUE;
+}
+
+BOOL DXGame::InitalizeInput() {
+	if (!dinput) {
+		if (FAILED(DirectInput8Create(GetModuleHandle(0), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&dinput, 0)))
+			return FALSE;
+
+		// create keyboard
+		dinput->CreateDevice(GUID_SysKeyboard, &dinputKeyboard, 0);
+
+		dinputKeyboard->SetDataFormat(&c_dfDIKeyboard);
+		dinputKeyboard->SetCooperativeLevel(m_hWnd, DISCL_FOREGROUND|DISCL_NONEXCLUSIVE);
+		dinputKeyboard->Acquire();
+
+		// create joystick TODO
+		//dinput->CreateDevice(GUID_Joystick, &dinputKeyboard, 0);
+
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+
+/*
+ * VOID Render()
+ * called when DXGame::GameLoop called.
+ * renders screen - need another thread to do rendering.
+ *
+ */
+
+VOID DXGame::Render() {
+	if (BeginScene()) {
+		Clear(0, 0, 0, 0);
+
+		// update time per each frame
+		CSVTimer::invalidateTime();
+
+		// call handler each time
+		GameManager::Invalidate();
+
+		// draw sprites
+		BeginSprite();
+		CSVRenderer::drawAll(GameManager::getCSVData());
+
+		// fadein/out
+		fadeAlpha = GameManager::getFadeAlpha();
+		FadeInOut();
+		EndSprite();
+
+		EndScene();
+	}
+}
+
+VOID DXGame::GameLoop() {
+	// execute render thread
+	//renderThreadAlive = true;
+	//renderThread = boost::thread(&DXGame::Render, this);
+	//renderThread.join(); [do not need to blocking]
+
+	// execute main window
+    MSG msg;
+    while( GetMessage( &msg, NULL, 0, 0 ) )
+    {
+        TranslateMessage( &msg );
+        DispatchMessage( &msg );
+
+		// update input
+		updateDirectInput();
+
+		// call render thread
+		Render();
+    }
+
+	// finish render thread
+	//renderThreadAlive = false;
+}
+
+/*
+ * checkDirectInput() - refreshes keyboardState[] variable.
+ * access it using checkKeyboard(int)
+ * should be called on every event handling.
+ * 
+ * ex:
+ * updateDirectInput()
+ * if (checkKeyboard(DIK_ESCAPE)) {
+ *     ASSERT(_T("PRESSED!"));
+ * }
+ */
+void DXGame::updateDirectInput() {
+	// get previous device state first
+	char currStat[256];
+	memset(currStat, 0, sizeof(currStat));
+	if (FAILED(dinputKeyboard->GetDeviceState(sizeof (currStat), (void*)&currStat))) {
+		dinputKeyboard->Acquire();
+		return;
+	}
+
+	// compare with previous state, and if changed, then send input event
+	// and copy state
+	for (int i=0; i<256; i++) {
+		/*
+		 * depreciated method
+		 *
+		 *
+		if (inputhandler && (keyboardState[i] != currStat[i])) {
+			if (currStat[i]) {
+				dxGame->currentScene->OnKeyDown(wParam);
+			} else {
+				dxGame->currentScene->OnKeyDown(wParam);
+			}
+			//inputhandler(i, currStat[i]);
+		}*/
+		currStat[i] /= 128;
+
+		if (keyboardState[i] != currStat[i]) {
+			if (currStat[i]) {
+				dxGame->currentScene->OnKeyDown(i);
+			} else {
+				dxGame->currentScene->OnKeyUp(i);
+			}
+		}
+		keyboardState[i] = currStat[i];
+	}
+}
+
+BOOL DXGame::checkKeyboard(int val) {
+	return keyboardState[val]/128;
+}
+
+/*
+ * depreciated method
+ *
+ */
+void DXGame::setInputeventHandler(void (*h)(int, int)) {
+	inputhandler = h;
 }
 
 VOID DXGame::ChangeMode(BOOL fullscreen) {
@@ -207,6 +345,10 @@ BOOL DXGame::Release() {
 		pBlackTexture->Release();
 		pBlackTexture = 0;
 	}
+
+	// input release
+	if (dinput)
+		dinput->Release();
 	
 	pd3dDevice->Release();
 	pd3d9->Release();
@@ -219,9 +361,11 @@ VOID DXGame::Clear(int a, int r, int g, int b) {
 		pd3dDevice->Clear(0, 0, D3DCLEAR_TARGET, D3DCOLOR_ARGB(a,r,g,b), 1.0f, 0);
 }
 
-VOID DXGame::BeginScene() {
+BOOL DXGame::BeginScene() {
 	if (pd3dDevice)
-		pd3dDevice->BeginScene();
+		return SUCCEEDED(pd3dDevice->BeginScene());
+	else
+		return FALSE;
 }
 
 VOID DXGame::EndScene() {
