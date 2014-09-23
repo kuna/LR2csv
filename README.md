@@ -153,7 +153,7 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 
 ---------------------
 
-~ 140916
+~ 140917
 35. panel works (+ related button...)
 36. rendering thread 별개로 돌리기. (<- 취소됨.)
 28. csv parser 만들기
@@ -163,6 +163,8 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 23. directinput
 29. csv parser로 button script 등 여러 parser에 적용.
   - CSVReader engine 수정.
+    * if 구문 살려두어다가 item query시 확인.
+    * item 기준으로 CSVItem이 리턴됨.
     * a
     * b
     * c
@@ -170,10 +172,18 @@ lavalse씨가 만든 Lunatic Rave 2는 6년이 지난 지금에서도 상당한 
 37. CSVUI 만들기
   - CSV에서 여러 동작과 관련된 switch 변경 등의 action을 수행해주는 method들을 제공해준다
   - (1p/2p 콤보 표시, 패널 표시, IR랭크 표시, select bar 이펙트 표시 등)
-38. music play 함수를 CSVMusic 클래스 같은 곳에 넘겨주도록 한다. (알아서 CSV가 음악 재생 함수 호출할 수 있도록 ...)
+38. CSVObject 객체 도입.
+  - CSV preload가 가능하도록 구조를 고안해 보자...
+39. music play 함수를 CSVMusic 클래스 같은 곳에 넘겨주도록 한다. (알아서 CSV가 음악 재생 함수 호출할 수 있도록 ...)
 
+---------------------
 
 TODO
+렌더링 엔진 원리 분석? - 노트는 어느 시점에 그리도록 하는가. 데이터 수정 후 테스트 도입.
+- grouping 시점은 일정하지 않다, 임의로 만들도록 처리하기.
+- text랑 bg는 별개로 그려진다 ... parsing 방식을 바꿀까?
+- [index가 다를 때에 관한 문제] - index가 다른 경우도 묶어서 item으로 줄까? 아니면 item 파싱시 다르게 줘야 하나? 다르게 준다면 그걸 어떻게 처리하나, 매번 파싱할수도 없고. -> 따라서 묶어서 주는 것으로... 근데 묶어서 준다면 전체 scan도 아니고 순차적으로 가져오는건데 그게 가능하나. -> grouping 시점이 일정하지 않으므로 시작할 때 grouping 하는 걸로 선정, 즉 시작할 때 모든 element search 해서 가져오는 것으로 한다...? 
+
 33. 노트 제대로 그리기
 34. DP, 2P 모드 지원...
 

@@ -30,9 +30,13 @@
  * void set(int, int)
  * void set(int, const std::wstring&)
  * void set(int, double)
- * void setFilter(const std::wstring&) : set filter for next() method. need to call resetpos()
- * void clearFilter() : clear filter. same as setFilter()
  * void selectFiltered(const std::wstring&) : calls internally resetpos, setfilter, next. only for single data selection.
+ * void nextFiltered(const std::wstring&) : find next object.
+ * void getItem() : get collection of lines from current index.
+ * - get #SRC_(a) to #DST_(a)
+ * - exception: #SRC_BAR_BODY, then #DST_BAR_BODY_ON / OFF. - on 메서드 호출시 on을 main dst로 옮기는 방식으로 함.
+ * - if multiple indexes? -> 별개의 object로 구성시키기. 찾는 건 CSVObject에서 해야할듯...
+ * - add tag attribute for ease of processing.
  * 
  * [private]
  * readFile()
@@ -76,8 +80,38 @@
 class CSVParser {
 private:
 	std::vector<std::wstring> lines;
+	void splitLine(TCHAR *data);
+	void removeLineComment(TCHAR *line);
+	void addLine(TCHAR *line);
+	void insertLine(TCHAR *line);
+	bool includeFile(TCHAR *path);
 	int currentIndex;
+	bool ReadFileString(const wchar_t *path, std::wstring& text);
 
 public:
 	bool ReadCSVFile(const wchar_t *path);
 };
+
+
+/*********************************
+ * CSVItem
+ *********************************
+ *
+ * item collection of csv data.
+ * 
+ * [public]
+ * select(int a)
+ *
+ *
+ * [private]
+ * (none)
+ *
+ * [usage]
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */

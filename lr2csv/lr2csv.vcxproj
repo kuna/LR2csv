@@ -84,6 +84,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameResource.cpp" />
     <ClCompile Include="GameSetting.cpp" />
+    <ClCompile Include="KeyNameManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SceneCommon.cpp" />
     <ClCompile Include="SceneDecide.cpp" />
@@ -101,6 +102,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameResource.h" />
     <ClInclude Include="GameSetting.h" />
+    <ClInclude Include="KeyNameManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneCommon.h" />
     <ClInclude Include="SceneDecide.h" />
